@@ -8,7 +8,7 @@ module counter_led_1 (
     parameter MCNT = 50_000_000;  // MCNT = 期望的周期ns / 20ns
     reg [31:0]count;
 
-    // 时钟计数
+    // 时钟计数  
     always @(posedge clock or negedge reset_n) begin
         if(! reset_n) begin
             count <= 0;
@@ -29,7 +29,7 @@ module counter_led_1 (
             led <= 1'b0;
         end
         else begin  // count 0~MCNT/4 - 1
-            if (count <=  MCNT/4 - 1) begin
+            if (count <=  MCNT/4 - 1) begin 
                 led <= 1'b1;
             end
             else begin  // count MCNT/4 ~ MCNT - 1
