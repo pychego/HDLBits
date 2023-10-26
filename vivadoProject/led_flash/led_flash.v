@@ -4,7 +4,7 @@
 module led_flash (
     input clock,
     input reset_n,
-    output led
+    output  reg led  // 底层模块定义变量类型
 );
     parameter MCNT = 2500_0000;  // 闪烁周期为1s
     reg [31:0] count;

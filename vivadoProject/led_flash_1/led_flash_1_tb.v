@@ -7,7 +7,8 @@
     wire Led;  // 模块输出定义为wire
 
     // 实例化模块
-    led_flash led_flash(
+    // 在测试时对MCNT重新赋值，加快测试速度
+    led_flash #(.MCNT(25_0000)) led_flash(
         .Clock(Clock),
         .Reset_n(Reset_n),
         .Led(Led)

@@ -1,9 +1,9 @@
 // 实例化4个led灯
 
 module led_run4 (
-    input reg clock,
-    input reg reset_n,
-    output reg [3:0] led
+    input clock,
+    input reset_n,
+    output [3:0] led   // 底层模块定义变量类型，这里不再定义
 );
     // 需要修改输入输出信号的类型吗?
     // MCNT = 需要延时的ns数 / 20ns

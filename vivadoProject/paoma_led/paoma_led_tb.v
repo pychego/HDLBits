@@ -7,7 +7,7 @@ module paoma_led_tb ();
     wire [7:0] led;
 
     // 实例化模型
-    paoma_led paoma_led(
+    paoma_led #(.MCNT(25_000))paoma_led(
         .clock(clock),
         .reset_n(reset_n),
         .led(led)
