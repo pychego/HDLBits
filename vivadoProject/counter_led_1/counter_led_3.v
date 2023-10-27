@@ -46,7 +46,7 @@ module counter_led_3 (
             3'd4: led = sw[4];
             3'd5: led = sw[5];
             3'd6: led = sw[6];
-            3'd7: led = sw[7];
+            3'd7: led = sw[7]; 
         endcase
     end
 

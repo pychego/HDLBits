@@ -10,7 +10,7 @@ module counter_led_2_tb ();
         .reset_n(reset_n),
         .led(led)
     );
-
+  
     initial begin
         clock = 0;
         reset_n = 1;
