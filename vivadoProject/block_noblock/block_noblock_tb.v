@@ -19,7 +19,7 @@ module blcok_noblock_tb ();
         clock = 0;
         reset_n = 0;
         # 10 reset_n = 1;
-        # 20 a = 0; b = 0; c = 0;
+        # 20 a = 0; b = 0; c = 0;  // 测试下延时为21的情况, 可以让组合逻辑变化避开clk上升沿
         # 20 a = 0; b = 0; c = 1;
         # 20 a = 0; b = 1; c = 0;
         # 20 a = 0; b = 1; c = 1;

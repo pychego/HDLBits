@@ -45,7 +45,7 @@ module uart_tx (
         if (!reset_n) 
             bps_count <= 0;
         else if(count == bps_DR - 1) begin
-            if (bps_count == 10)   // 10也是一个完整的状态
+            if (bps_count == 10)   // 10也是一个完整的状态, 一共11个状态
                 bps_count <= 0;
             else
                 bps_count <= bps_count + 1;
