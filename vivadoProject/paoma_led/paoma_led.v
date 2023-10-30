@@ -1,12 +1,12 @@
+
 // 设计8个led等以每个0.5s的速率循环闪烁。 跑马灯=计数器+译码器
 // 7010时钟频率20ns，设置0.5s需要25M个时钟周期。
 module paoma_led (
     input clock,
-    input reset_n,
+    input wire reset_n,
     output [7:0] led  // 调用的decoder_3_8已经定义了led为reg，顶层模块不定义
 );
     parameter MCNT = 2500_0000; // MCNT = 周期ns / 20ns
-    wire reset_n;
     reg [24:0] count; // 25位寄存器，用于增大系统周期
     reg [2:0] led_count; // 3位寄存器，用于控制led灯的闪烁频率
 

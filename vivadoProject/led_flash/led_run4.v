@@ -3,7 +3,7 @@
 module led_run4 (
     input clock,
     input reset_n,
-    output [3:0] led   // 底层模块定义变量类型，这里不再定义
+    output [3:0] led   // 底层模块定义变量类型，这里不再定义, 重复定义会报错
 );
     // 需要修改输入输出信号的类型吗?
     // MCNT = 需要延时的ns数 / 20ns
