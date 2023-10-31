@@ -114,8 +114,7 @@ module uart_byte (
         if (!reset_n)
             tx_done <= 1'b0;
         else if(bps_clk == 1 && bps_count == 10)
-        // bps_count=10对应的时刻为count从2一直加到1， 因此条件为stop位即将结束的时刻
-            tx_done <= 1'b1;        // 从时序图上发现的，此时为stop位即将结束的时刻
+            tx_done <= 1'b1;
         else
             tx_done <= 1'b0;
     end

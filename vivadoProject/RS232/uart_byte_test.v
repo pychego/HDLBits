@@ -40,12 +40,12 @@ module uart_byte_test (
         end
     end
 
-    // 操作send_go
+    // 操作send_go 每个10ms刚开始send_go来一个高脉冲
     always @(posedge clock or negedge reset_n) begin
         if(!reset_n)
             send_go <= 0;
         else if (count == 1)
-            send_go <= 1;
+            send_go <= 1;      
         else
             send_go <= 0;
     end
