@@ -4,7 +4,7 @@
 module uart_byte (
     input clock,
     input reset_n,
-    input send_en,   // 开始发送 
+    input send_go,   // 单脉冲信号，控制电平信号send_en 
     input [3:0]band_set, // 波特率设置,8种选择
     input [7:0] data,  // 并行输入
     output reg uart_tx,  // 串口输出
@@ -14,9 +14,9 @@ module uart_byte (
     reg [31:0] count;  //  每发送一个bit为count一个计数周期
     reg [3:0] bps_count;  //  传输前有一位strat位, 传输后有一位stop位, 一共传输10个bit
     wire bps_clk;
-    assign bps_clk = (count == 1);  // 传输一个bit的时钟
+    assign bps_clk = (count == 1);  // 传输一个bit的时钟,脉冲信号
 /* 时序控制信号-----------------
-    count uart_tx bps_count tx_done
+    count uart_tx bps_count tx_done send_en
    组合逻辑信号-----------------
     data bps_clk   */
     // 根据band_set译码bps_DR
@@ -28,6 +28,27 @@ module uart_byte (
             3: bps_DR = 100_0000_000/57600/20;  //  bps=57600
             default: bps_DR = 100_0000_000/115200/20;
         endcase
+    end
+
+    // 操作send_en
+    // 经过send_go和send_en使能，在每个10ms刚开始会有一点延迟才开始发送数据
+    reg send_en;
+    always @(posedge clock or negedge reset_n) begin
+        if(!reset_n)
+            send_en <= 0;
+        else if(send_go)  // 从这里开始是clock上升沿控制
+            send_en <= 1;    // 滞后,但影响不大
+        else if(tx_done)
+            send_en <= 0;
+    end
+
+    // 存上send_go时刻的data
+    reg [7:0] reg_data;
+    always @(posedge clock) begin
+        if(send_go)
+            reg_data <= data;
+        else
+            reg_data <= reg_data;
     end
 
     // 操作最小计数周期 count
@@ -97,7 +118,5 @@ module uart_byte (
         else
             tx_done <= 1'b0;
     end
-
-
 
 endmodule
