@@ -1,7 +1,7 @@
 // 串口通信模块
 // 已知bps, 传输每bit时间为1/bps
 // 传输一个bit的需要的clk周期数 1/bps * 100MHz / 20ns
-module uart_tx (
+module uart_byte (
     input clock,
     input reset_n,
     input send_en,   // 开始发送 
@@ -12,17 +12,18 @@ module uart_tx (
 );
     reg [31:0] bps_DR;  // 传输一个bit需要的clk周期数 ;
     reg [31:0] count;  //  每发送一个bit为count一个计数周期
-    reg [2:0] send_count;  // 记录正在发送第几个bit
     reg [3:0] bps_count;  //  传输前有一位strat位, 传输后有一位stop位, 一共传输10个bit
+    wire bps_clk;
+    assign bps_clk = (count == 1);  // 传输一个bit的时钟
 
     // 根据band_set译码bps_DR
     always @(*) begin
         case (band_set)
-            0: bps_DR = 100_0000/9600/20;  // bps=9600
-            1: bps_DR = 100_0000/19200/20;  // bps=19200
-            2: bps_DR = 100_0000/38400/20;  // bps=38400
-            3: bps_DR = 100_0000/57600/20;  //  bps=57600
-            default: bps_DR = 100_0000/115200/20;
+            0: bps_DR = 100_0000_000/9600/20;  // bps=9600
+            1: bps_DR = 100_0000_000/19200/20;  // bps=19200
+            2: bps_DR = 100_0000_000/38400/20;  // bps=38400
+            3: bps_DR = 100_0000_000/57600/20;  //  bps=57600
+            default: bps_DR = 100_0000_000/115200/20;
         endcase
     end
 
@@ -41,35 +42,44 @@ module uart_tx (
     end
 
     // 操作bps_count,需要计数
+    // 设置count == 1为判断条件，send_en使能后，bps_count过一个clock周期就变为1,uart_tx变为0，一个clock周期误差可以接受
+    // count == 0 好像也可以 
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) 
             bps_count <= 0;
-        else if(count == bps_DR - 1) begin
-            if (bps_count == 10)   // 10也是一个完整的状态, 一共11个状态
-                bps_count <= 0;
-            else
-                bps_count <= bps_count + 1;
+        else if(send_en) begin
+            // if语句后面如果接if-else，必须把if语句用begin-end包起来
+            if(count == 1) begin  
+                if (bps_count == 11)   // 10也是一个完整的状态,11只有两个时钟周期
+                    bps_count <= 0;
+                else
+                    bps_count <= bps_count + 1;
+            end
         end
+        else 
+            bps_count <= 0;
+            
     end
 
     // 发送数据, 共10bit
      always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
-            uart_tx = 1'b0;
+            // 空闲情况下，uart_tx为1
+            uart_tx = 1'b1;  //  看波形有用，send_en使能后，应该立刻变为0
         end
-        else begin
+        else begin   // uart_tx受clock上升沿控制
             case (bps_count)
-                0: begin uart_tx = 1'b0; tx_done=1'b0;   end  // start位
-                1: uart_tx = data[0];  // data[0]
-                2: uart_tx = data[1];  // data[1]
-                3: uart_tx = data[2];  // data[2]
-                4: uart_tx = data[3];  // data[3]
-                5: uart_tx = data[4];  // data[4]
-                6: uart_tx = data[5];
-                7: uart_tx = data[6];
-                8: uart_tx = data[7];
-                9: uart_tx = 1'b1;  // stop位 
-                10: begin uart_tx = 1'b1; tx_done=1'b1;  end // 发送完成
+                1: begin uart_tx = 1'b0; tx_done=1'b0;   end  // start位
+                2: uart_tx = data[0];  // data[0]
+                3: uart_tx = data[1];  // data[1]
+                4: uart_tx = data[2];  // data[2]
+                5: uart_tx = data[3];  // data[3]
+                6: uart_tx = data[4];  // data[4]
+                7: uart_tx = data[5];
+                8: uart_tx = data[6];
+                9: uart_tx = data[7];
+                10: uart_tx = 1'b1;  // stop位 
+                11: begin uart_tx = 1'b1; tx_done=1'b1;  end // 发送完成
                 default: uart_tx = 1'b1;
             endcase 
         end
