@@ -15,7 +15,10 @@ module uart_byte (
     reg [3:0] bps_count;  //  传输前有一位strat位, 传输后有一位stop位, 一共传输10个bit
     wire bps_clk;
     assign bps_clk = (count == 1);  // 传输一个bit的时钟
-
+/* 时序控制信号-----------------
+    count uart_tx bps_count tx_done
+   组合逻辑信号-----------------
+    data bps_clk   */
     // 根据band_set译码bps_DR
     always @(*) begin
         case (band_set)
@@ -69,7 +72,6 @@ module uart_byte (
         end
         else begin   // uart_tx受clock上升沿控制
             case (bps_count)
-                0: tx_done = 1'b0;  
                 1: uart_tx = 1'b0;  // start位
                 2: uart_tx = data[0];  // data[0]
                 3: uart_tx = data[1];  // data[1]
@@ -80,11 +82,21 @@ module uart_byte (
                 8: uart_tx = data[6];
                 9: uart_tx = data[7];
                 10: uart_tx = 1'b1;  // stop位 
-                11: begin uart_tx = 1'b1; tx_done=1'b1 ;  end // 发送完成
+                11: uart_tx = 1'b1;  // 发送完成
                 default: uart_tx = 1'b1;
             endcase 
         end
      end
+
+    // tx_done传输完成信号单独处理
+    always @(posedge clock or negedge reset_n) begin
+        if (!reset_n)
+            tx_done <= 1'b0;
+        else if(bps_clk == 1 && bps_count == 10)
+            tx_done <= 1'b1;
+        else
+            tx_done <= 1'b0;
+    end
 
 
 

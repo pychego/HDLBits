@@ -11,9 +11,11 @@ module uart_byte_test (
     reg [7:0] epoch;  // 记录现在是第几个10ms周期
     reg send_en;      // 成为内部信号了
     wire [7:0] data;
-    wire tx_done;
+    wire tx_done;      // 必须是wire，reg会报错 module输出用wire接
     assign data = epoch[7:0];
-
+/*  时序控制信号 uart_tx tx_done send_en 
+    组合逻辑信号 data 
+*/
         // 调用模块
     uart_byte uart_byte_inst(
         .clock(clock),
@@ -47,6 +49,9 @@ module uart_byte_test (
         else if(tx_done)
             send_en <= 0;
     end
+    // count=1 -> bps_count=11 -> tx_done=1 -> send_en=0 ->
+    //  bps_count=0 -> tx_done=0, 因此tx_done=1保持了三个clock
+
 
     // 操作epoch
     always @(posedge clock or negedge reset_n) begin
