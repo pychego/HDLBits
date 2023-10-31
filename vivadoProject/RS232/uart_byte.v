@@ -48,14 +48,14 @@ module uart_byte (
         if (!reset_n) 
             bps_count <= 0;
         else if(send_en) begin
-            // if语句后面如果接if-else，必须把if语句用begin-end包起来
-            if(count == 1) begin  
-                if (bps_count == 11)   // 10也是一个完整的状态,11只有两个时钟周期
-                    bps_count <= 0;
-                else
-                    bps_count <= bps_count + 1;
+                // if语句后面如果接if-else，必须把if语句用begin-end包起来
+                if(count == 1) begin  
+                    if (bps_count == 11)   // 10也是一个完整的状态,11只有3个clock周期
+                        bps_count <= 0;
+                    else    // send_en使能一个clock周期后，bps_count就变为1
+                        bps_count <= bps_count + 1;
+                end
             end
-        end
         else 
             bps_count <= 0;
             
@@ -69,7 +69,8 @@ module uart_byte (
         end
         else begin   // uart_tx受clock上升沿控制
             case (bps_count)
-                1: begin uart_tx = 1'b0; tx_done=1'b0;   end  // start位
+                0: tx_done = 1'b0;  
+                1: uart_tx = 1'b0;  // start位
                 2: uart_tx = data[0];  // data[0]
                 3: uart_tx = data[1];  // data[1]
                 4: uart_tx = data[2];  // data[2]
@@ -79,7 +80,7 @@ module uart_byte (
                 8: uart_tx = data[6];
                 9: uart_tx = data[7];
                 10: uart_tx = 1'b1;  // stop位 
-                11: begin uart_tx = 1'b1; tx_done=1'b1;  end // 发送完成
+                11: begin uart_tx = 1'b1; tx_done=1'b1 ;  end // 发送完成
                 default: uart_tx = 1'b1;
             endcase 
         end

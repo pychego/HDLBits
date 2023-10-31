@@ -31,6 +31,7 @@ module uart_byte_tb ();
         data = 8'b0;
         send_en = 1'b0; // 上电进行复位操作
         band_set = 4;
+        
         #201   // 错开clk的上升沿，避免出现输入和clk上升沿同时变化，无法确定信号值
         #100;
         data = 8'h57;
