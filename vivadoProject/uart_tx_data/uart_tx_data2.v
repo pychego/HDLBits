@@ -1,6 +1,5 @@
-// 功能同uart_tx_dota1相同，使用状态机完成
+// 功能同uart_tx_dota1相同，使用状态机完成，发送一个byte用一个状态
 // 串口向电脑发送5字节的数据
-// 使用简单的分支语句
 module uart_tx_data2 (
     input             clock,
     input             reset_n,
