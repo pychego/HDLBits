@@ -1,4 +1,4 @@
-`timescale 1ns/1ns
+`timescale 1ns / 1ns
 
 module paoma_led_tb ();
 
@@ -7,21 +7,23 @@ module paoma_led_tb ();
     wire [7:0] led;
 
     // 实例化模型
-    paoma_led #(.MCNT(25_000))paoma_led(
-        .clock(clock),
+    paoma_led #(
+        .MCNT(25_000)
+    ) paoma_led (
+        .clock  (clock),
         .reset_n(reset_n),
-        .led(led)
+        .led    (led)
     );
 
     // 信号激励
     initial begin
         clock = 0;
     end
-    always #10 clock = ~clock; // 20ns周期
+    always #10 clock = ~clock;  // 20ns周期
 
     initial begin
-        reset_n = 0;  
+        reset_n = 0;
         #4100000000 reset_n = 1;  //4.1s后复位
     end
-    
+
 endmodule

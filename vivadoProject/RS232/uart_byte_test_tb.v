@@ -1,17 +1,16 @@
-`timescale 1ns/1ns
+`timescale 1ns / 1ns
 
 
-module urat_byte_test_tb (
-);
+module urat_byte_test_tb ();
 
 
-    reg clock;     // initial中信号为reg
-    reg reset_n;
+    reg  clock;  // initial中信号为reg
+    reg  reset_n;
     wire uart_tx;
 
 
     uart_byte_test uart_byte_test_inst (
-        .clock(clock),
+        .clock  (clock),
         .reset_n(reset_n),
         .uart_tx(uart_tx)
     );
@@ -23,11 +22,11 @@ module urat_byte_test_tb (
     initial begin
         // 初始复位;
         reset_n = 1'b0;
-        
-        # 201;
+
+        #201;
         reset_n = 1'b1;
-        # 50_000000;
+        #50_000000;
         $stop;
     end
-    
+
 endmodule
