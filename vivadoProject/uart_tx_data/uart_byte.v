@@ -1,5 +1,5 @@
-// 串口通信模块，uart协议规定发送的数据位只能有6 7 8
-// 已知bps, 传输每bit时间为1/bps
+// 串口通信模块，uart协议规定发送的数据位只能有6 7 8  已知bps, 传输每bit时间为1/bps
+// 串口发送
 // 传输一个bit的需要的clk周期数 1/bps * 100MHz / 20ns
 module uart_byte (
     input            clock,
@@ -15,10 +15,10 @@ module uart_byte (
     reg [3:0] bps_count;  //  传输前有一位strat位, 传输后有一位stop位, 一共传输10个bit
     wire bps_clk;
     assign bps_clk = (count == 1);  // 传输一个bit的时钟,脉冲信号
-    /* 时序控制信号-----------------
-    count uart_tx bps_count tx_done send_en
-   组合逻辑信号-----------------
-    data bps_clk   */
+/* 时序控制信号-----------------
+count uart_tx bps_count tx_done send_en
+组合逻辑信号-----------------
+data bps_clk   */
     // 根据band_set译码bps_DR
     always @(*) begin
         case (band_set)

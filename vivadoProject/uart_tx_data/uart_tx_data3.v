@@ -32,7 +32,7 @@ module uart_tx_data3 (
         .tx_done (tx_done)
     );
 
-    // 没有处理data
+    // data值为轮次 send_count
     reg [1:0] state;
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
