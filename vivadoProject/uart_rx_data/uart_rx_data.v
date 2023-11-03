@@ -5,14 +5,16 @@ module uart_rx_data (
     input            reset_n,
     input            band_set,
     input            uart_rx,
-    output reg [7:0] data,        // 接收的数据
+    output reg [7:0] data,      // 接收的数据
     output reg       rx_done
 );
-    reg [9:0] all_data;  // 串口接收的包含start和stop的10bit数据
+
     reg [31:0] bps_DR;  // 传输一个bit需要的clk周期数 ;
     reg [31:0] count;  // 最小计数值
     reg [3:0] bps_count;  //  传输前有一位strat位, 传输后有一位stop位, 一共传输10个bit
     wire bps_clk;  // 来一bit就输出一个上升沿
+
+    assign bps_clk = (count == 1);
 
     /* 时序控制信号 receive_go
     组合逻辑信号 bps_clk
@@ -30,13 +32,16 @@ module uart_rx_data (
 
     // 判断是否开始start位(检测下降沿) 操作receive_go 脉冲信号  
     reg d0, d1, receive_go;  // 上电之后只要有下降沿马上开始接受信号
+    reg flag;
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
             d0 <= 1'b0;
             d1 <= 1'b0;
+            flag <= 1'b0;
             receive_go <= 1'b0;
-        end else if (d1 > d0) begin
+        end else if (d1 > d0 && flag == 0) begin
             receive_go <= 1'b1;
+            flag <= 1'b1;
         end else begin
             d0 <= uart_rx;
             d1 <= d0;
@@ -60,10 +65,10 @@ module uart_rx_data (
             count <= 0;
         end else begin
             if (receive_en) begin
-                if(count == bps_DR - 1) count <= 0;
+                if (count == bps_DR - 1) count <= 0;
                 else count <= count + 1;
             end else count <= 0;
-    end
+        end
     end
 
     // 根据count赋值bps_count，每个bps_count值持续时间位count从2~1
@@ -82,28 +87,65 @@ module uart_rx_data (
 
     end
 
+    wire sample_data;  // 采样得到的数据
+    wire sample_done;
+    sample_card sample_card (
+        .clock      (clock),
+        .reset_n    (reset_n),
+        .uart_rx    (uart_rx),
+        .bps_DR     (bps_DR),
+        .sample_done(sample_done),
+        .dvalue     (sample_data)
+    );
+
+
     // 为简单，只8bit数据进行取样，每个bps_count内取样7次
     // 应该把采样模块封装，进行例化
     always @(posedge clock or negedge reset_n) begin
-        if(!reset_n) begin
+        if (!reset_n) begin
             data <= 8'b0;
-        end else begin 
+        end else begin
             case (bps_count)
-    end
+                2: begin
+                    data[0] <= sample_data;
+                end
+                3: begin
+                    data[1] <= sample_data;
+                end
+                4: begin
+                    data[2] <= sample_data;
+                end
+                5: begin
+                    data[3] <= sample_data;
+                end
+                6: begin
+                    data[4] <= sample_data;
+                end
+                7: begin
+                    data[5] <= sample_data;
+                end
+                8: begin
+                    data[6] <= sample_data;
+                end
+                9: begin
+                    data[7] <= sample_data;
+                end
+                default: data <= data;
+            endcase
+        end
+
     end
 
     // 操作rx_done, 为脉冲信号
     always @(posedge clock or negedge reset_n) begin
-        if(!reset_n) begin
+        if (!reset_n) begin
             rx_done <= 1'b0;
-        end else if(bps_clk == 1 && bps_count == 10) begin
+        end else if (bps_clk == 1 && bps_count == 10) begin
             rx_done <= 1'b1;
         end else begin
             rx_done <= 1'b0;
         end
     end
-
-
 
 
 endmodule
