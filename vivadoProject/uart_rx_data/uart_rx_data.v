@@ -3,7 +3,6 @@
 module uart_rx_data (
     input            clock,
     input            reset_n,
-    input            receive_go,
     input            band_set,
     input            uart_rx,
     output reg [7:0] data,        // 接收的数据
@@ -30,7 +29,7 @@ module uart_rx_data (
     end
 
     // 判断是否开始start位(检测下降沿) 操作receive_go 脉冲信号  
-    reg d0, d1;
+    reg d0, d1, receive_go;  // 上电之后只要有下降沿马上开始接受信号
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
             d0 <= 1'b0;
@@ -65,30 +64,33 @@ module uart_rx_data (
                 else count <= count + 1;
             end else count <= 0;
     end
+    end
 
     // 根据count赋值bps_count，每个bps_count值持续时间位count从2~1
     // 原本11是稳态，但由于受到receive_en控制，只存在很短时间就消失了
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) bps_count <= 0;
         else if (receive_en) begin
+            // if语句后面如果接if-else，必须把if语句用begin-end包起来
             if (count == 1) begin
-                if (bps_count == 11) bps_count <= 0;  // bps_count暂态
-                else bps_count <= bps_count + 1;
+                if (bps_count == 11)  // 10也是一个完整的状态,11只有3个clock周期
+                    bps_count <= 0;
+                else  // send_en使能一个clock周期后，bps_count就变为1
+                    bps_count <= bps_count + 1;
             end
         end else bps_count <= 0;
+
     end
 
     // 为简单，只8bit数据进行取样，每个bps_count内取样7次
     // 应该把采样模块封装，进行例化
-    reg [6:0]sample;
     always @(posedge clock or negedge reset_n) begin
         if(!reset_n) begin
-            sample <= 7'b0;
             data <= 8'b0;
-        end else begin
+        end else begin 
+            case (bps_count)
     end
-
-
+    end
 
     // 操作rx_done, 为脉冲信号
     always @(posedge clock or negedge reset_n) begin
