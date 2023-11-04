@@ -7,7 +7,7 @@ module uart_byte_rx (
     output reg       rx_done
 );
 
-    // 时序信号 uart_rx, rx_done rx_en
+    // 时序信号 uart_rx, rx_done脉冲 rx_en电平
     // 组合逻辑 nedge_uart_rx
 
     // 记录采样值
@@ -29,7 +29,7 @@ module uart_byte_rx (
     assign pedge_uart_rx = (uart_rx_r == 2'b01);
     assign nedge_uart_rx = (uart_rx_r == 2'b10);  // 脉冲信号
 
-    // 定义发送使能信号
+    // 定义发送使能信号,规定了采样开始时间
     reg rx_en;
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) rx_en <= 1'b0;
@@ -68,6 +68,8 @@ module uart_byte_rx (
     end
 
     // 记录采样的次数，每bit采样16次，共10bit，采样160次
+    // bps_cnt变化一次需要540ns,16次需要8640ns；而传输数据一个bit需要8680ns，由此会每次产生40ns的误差
+    // 该误差会在传输每byte中累计,但采样舍弃了头尾，因此对最终结果没影响
     reg [31:0] bps_cnt;
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
@@ -143,6 +145,7 @@ module uart_byte_rx (
 
     // 操作rx_done 脉冲信号
     // 原本bps_cnt为159就采样结束了，但为了推迟rx_done出现的时间，所以改为161
+    // 实际应用中需要在stop发送完之前产生rx_done
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) rx_done <= 1'b0;
         else if (bps_clk_16x && bps_cnt == 159) rx_done <= 1'b1;
