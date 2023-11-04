@@ -1,3 +1,5 @@
+// 思想，将10个bit的发送时间分成了160段 每个bit划分16段 在每段的终点采样
+// 舍弃前5段和后4段
 module uart_byte_rx (
     input            clock,
     input            reset_n,
@@ -131,7 +133,9 @@ module uart_byte_rx (
     // 采样完成后对data赋值
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) data <= 0;
-        else if (bps_clk_16x && bps_cnt == 159) begin  // 该时刻对应最后一次采样的瞬间
+        // 这里改为158, 是在rx_done上升沿时可以得到data的值
+        else if (bps_clk_16x && bps_cnt == 158) begin  // 该时刻对应最后一次采样的瞬间
+            // data[0] <= r_data[0][2];  // 结果一致
             data[0] <= (r_data[0] >= 4) ? 1'b1 : 1'b0;
             data[1] <= (r_data[1] >= 4) ? 1'b1 : 1'b0;
             data[2] <= (r_data[2] >= 4) ? 1'b1 : 1'b0;
@@ -146,6 +150,7 @@ module uart_byte_rx (
     // 操作rx_done 脉冲信号
     // 原本bps_cnt为159就采样结束了，但为了推迟rx_done出现的时间，所以改为161
     // 实际应用中需要在stop发送完之前产生rx_done
+    // 从uart_rx下降沿到rx_done脉冲结束需要的时间不足8680ns
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) rx_done <= 1'b0;
         else if (bps_clk_16x && bps_cnt == 159) rx_done <= 1'b1;

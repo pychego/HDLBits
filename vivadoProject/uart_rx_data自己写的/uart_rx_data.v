@@ -1,9 +1,10 @@
-// 串口接收模块，设计接受1byte的模块
-
+// 串口接收模块，设计接受1byte的模块  自己写的
+// 错代码，难把采集模块单独弄出来
+// 好像也不能根据发送模块使用的bps_count有暂态11， 这个接收需要时连续的
 module uart_rx_data (
     input            clock,
     input            reset_n,
-    input            band_set,
+    input     [2:0] band_set,
     input            uart_rx,
     output reg [7:0] data,      // 接收的数据
     output reg       rx_done

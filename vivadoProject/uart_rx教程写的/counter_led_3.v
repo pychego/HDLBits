@@ -1,10 +1,9 @@
 // led灯按照指定的亮灭模式，亮灭模式未知，由用户随机指定 每个状态持续时间由TIME确定，8个状态一个循环
-
 module counter_led_3 (
     input            clock,
     input            reset_n,
     input      [7:0] ctrl,
-    input     [31:0] TIME,
+    input     [31:0] state_time,
     output reg       led       // always块内左边要是reg
 );
     // parameter MCNT = 125_00000;  // 0.25s
@@ -16,7 +15,7 @@ module counter_led_3 (
         if (!reset_n) begin
             count <= 0;
         end else begin
-            if (count == TIME - 1) begin
+            if (count == state_time - 1) begin
                 count <= 0;
             end else begin
                 count <= count + 1;
@@ -28,7 +27,7 @@ module counter_led_3 (
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) led_count <= 0;
         else begin
-            if (count == TIME - 1) begin
+            if (count == state_time - 1) begin
                 led_count <= led_count + 1;  // 记满自动回000
             end
         end
