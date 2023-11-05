@@ -5,13 +5,13 @@
 
     引入uart_byte_rx  counter_led_3
     前者将串口接收的数据送到counter_led_3的ctrl和TIME 共5个byte
-    制定协议 0x55 0xa5 TIME[7:0] TIME[15:8] TIME[23:16] TIME[31:24] ctrl[7:0] 0xf0
+    自己制定协议 0x55 0xa5 TIME[7:0] TIME[15:8] TIME[23:16] TIME[31:24] ctrl[7:0] 0xf0
 */
 
 module uart_rx_ctrl_led (
     input  clock,
     input  reset_n,
-    input  uart_rx,
+    input  uart_rx, 
     output led
 );
     // 模块之间的连线不用纠结输出输出用什么，连线都用wire

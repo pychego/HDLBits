@@ -1,5 +1,5 @@
 // 串口通信模块，uart协议规定发送的数据位只能有6 7 8  已知bps, 传输每bit时间为1/bps
-// 串口发送
+// 串口发送 发送 发送
 // 传输一个bit的需要的clk周期数 1/bps * 100MHz / 20ns
 module uart_byte (
     input            clock,
