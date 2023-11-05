@@ -11,11 +11,18 @@ module counter_led_3 (
     reg [ 2:0] led_count;
 
     // 时钟计数
+    /* 判断条件写成state_time -1 <= count 比count == state_time -1好很多
+    前者可以避免state_time为0,左边突然很大的情况，而后者在state_time为0时需要很长时间才能判断为真
+    后者每次复位，判断条件为count == ffffffff, 你先复位再发送数据，当接收到state_time时，count已经超过state_time了
+    因此第一轮count一直加到0xffffffff(需要85.89s)， 以后state_time不再为0就正常了
+
+    仿真时没有这个问题，是因为当state_time被赋值的时候，count计数还没到达state_time-1
+    */
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
             count <= #1  0;
         end else begin
-            if (count == state_time - 1) begin
+            if (state_time -1 <= count) begin
                 count <= #1  0;
             end else begin
                 count <= #1  count + 1;
@@ -27,7 +34,7 @@ module counter_led_3 (
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) led_count <= #1  0;
         else begin
-            if (count == state_time - 1) begin
+            if (state_time -1 <= count) begin
                 led_count <= #1  led_count + 1;  // 记满自动回000
             end
         end

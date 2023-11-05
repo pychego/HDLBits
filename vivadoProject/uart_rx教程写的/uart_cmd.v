@@ -9,7 +9,7 @@ module uart_cmd (
     output reg [31:0] state_time
 );
 
-    reg flag;  // 用于标记是否接收到了协议
+    reg flag;  // 用于标记是否接收到了协议, 没有用到这个
     reg  [7:0] memory[7:0];
 
     // 数据移位更新
