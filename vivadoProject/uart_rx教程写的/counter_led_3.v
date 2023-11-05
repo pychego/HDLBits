@@ -13,22 +13,22 @@ module counter_led_3 (
     // 时钟计数
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
-            count <= 0;
+            count <= #1  0;
         end else begin
             if (count == state_time - 1) begin
-                count <= 0;
+                count <= #1  0;
             end else begin
-                count <= count + 1;
+                count <= #1  count + 1;
             end
         end
     end
 
     // led_count计数
     always @(posedge clock or negedge reset_n) begin
-        if (!reset_n) led_count <= 0;
+        if (!reset_n) led_count <= #1  0;
         else begin
             if (count == state_time - 1) begin
-                led_count <= led_count + 1;  // 记满自动回000
+                led_count <= #1  led_count + 1;  // 记满自动回000
             end
         end
     end

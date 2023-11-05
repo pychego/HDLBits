@@ -22,8 +22,8 @@ module uart_byte_rx (
     // 两个D触发器检测边沿
     reg [1:0] uart_rx_r;
     always @(posedge clock) begin
-        uart_rx_r[1] <= uart_rx_r[0];
-        uart_rx_r[0] <= uart_rx;
+        uart_rx_r[1] <= #1  uart_rx_r[0];
+        uart_rx_r[0] <= #1  uart_rx;
     end
 
     // 定义uart_rx的上升沿和下降沿
@@ -34,10 +34,10 @@ module uart_byte_rx (
     // 定义发送使能信号,规定了采样开始时间
     reg rx_en;
     always @(posedge clock or negedge reset_n) begin
-        if (!reset_n) rx_en <= 1'b0;
-        else if (nedge_uart_rx) rx_en <= 1'b1;  // 在数据正传输过程中这句话可有可无
+        if (!reset_n) rx_en <= #1  1'b0;
+        else if (nedge_uart_rx) rx_en <= #1  1'b1;  // 在数据正传输过程中这句话可有可无
         // 遇到了传输完成或者错误的起始位
-        else if (rx_done || (sta_bit >= 4)) rx_en <= 1'b0;
+        else if (rx_done || (sta_bit >= 4)) rx_en <= #1  1'b0;
     end
 
     reg [31:0] bps_DR;  // 每一位采样16次，舍弃前5次和后4次
@@ -61,12 +61,12 @@ module uart_byte_rx (
     // 操作最小计数单元，一个count周期采样一次
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
-            count <= 0;  // 只有数据来了之后计数才有意义
+            count <= #1  0;  // 只有数据来了之后计数才有意义
         end else if (rx_en) begin
             if (count == bps_DR) begin
-                count <= 0;
-            end else count <= count + 1;
-        end else count <= 1'b0;
+                count <= #1  0;
+            end else count <= #1  count + 1;
+        end else count <= #1  1'b0;
     end
 
     // 记录采样的次数，每bit采样16次，共10bit，采样160次
@@ -75,56 +75,56 @@ module uart_byte_rx (
     reg [31:0] bps_cnt;
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
-            bps_cnt <= 0;
+            bps_cnt <= #1  0;
         end else if (rx_en) begin
             if (bps_clk_16x) begin
                 if (bps_cnt == 159) begin  // 此时159这个状态已经要结束了
-                    bps_cnt <= 0;
+                    bps_cnt <= #1  0;
                 end else begin
-                    bps_cnt <= bps_cnt + 1;
+                    bps_cnt <= #1  bps_cnt + 1;
                 end
             end
-        end else bps_cnt <= 1'b0;
+        end else bps_cnt <= #1  1'b0;
     end
 
 
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
-            sta_bit   <= 0;
-            sto_bit   <= 0;
-            r_data[0] <= 0;
-            r_data[1] <= 0;
-            r_data[2] <= 0;
-            r_data[3] <= 0;
-            r_data[4] <= 0;
-            r_data[5] <= 0;
-            r_data[6] <= 0;
-            r_data[7] <= 0;
+            sta_bit   <= #1  0;
+            sto_bit   <= #1  0;
+            r_data[0] <= #1  0;
+            r_data[1] <= #1  0;
+            r_data[2] <= #1  0;
+            r_data[3] <= #1  0;
+            r_data[4] <= #1  0;
+            r_data[5] <= #1  0;
+            r_data[6] <= #1  0;
+            r_data[7] <= #1  0;
         end else if (bps_clk_16x) begin  // bps_clk_16x为采样条件
             case (bps_cnt)  // 每个uart采样16次，舍弃前5次和后4次
                 // 注意要有清零的步骤，不然第二个byte的时候会出错
                 0: begin
-                    sta_bit   <= 0;
-                    sto_bit   <= 0;
-                    r_data[0] <= 0;
-                    r_data[1] <= 0;
-                    r_data[2] <= 0;
-                    r_data[3] <= 0;
-                    r_data[4] <= 0;
-                    r_data[5] <= 0;
-                    r_data[6] <= 0;
-                    r_data[7] <= 0;
+                    sta_bit   <= #1  0;
+                    sto_bit   <= #1  0;
+                    r_data[0] <= #1  0;
+                    r_data[1] <= #1  0;
+                    r_data[2] <= #1  0;
+                    r_data[3] <= #1  0;
+                    r_data[4] <= #1  0;
+                    r_data[5] <= #1  0;
+                    r_data[6] <= #1  0;
+                    r_data[7] <= #1  0;
                 end
-                5, 6, 7, 8, 9, 10, 11: sta_bit <= sta_bit + uart_rx;
-                21, 22, 23, 24, 25, 26, 27: r_data[0] <= r_data[0] + uart_rx;
-                37, 38, 39, 40, 41, 42, 43: r_data[1] <= r_data[1] + uart_rx;
-                53, 54, 55, 56, 57, 58, 59: r_data[2] <= r_data[2] + uart_rx;
-                69, 70, 71, 72, 73, 74, 75: r_data[3] <= r_data[3] + uart_rx;
-                85, 86, 87, 88, 89, 90, 91: r_data[4] <= r_data[4] + uart_rx;
-                101, 102, 103, 104, 105, 106, 107: r_data[5] <= r_data[5] + uart_rx;
-                117, 118, 119, 120, 121, 122, 123: r_data[6] <= r_data[6] + uart_rx;
-                133, 134, 135, 136, 137, 138, 139: r_data[7] <= r_data[7] + uart_rx;
-                149, 150, 151, 152, 153, 154, 155: sto_bit <= sto_bit + uart_rx;
+                5, 6, 7, 8, 9, 10, 11: sta_bit <= #1  sta_bit + uart_rx;
+                21, 22, 23, 24, 25, 26, 27: r_data[0] <= #1  r_data[0] + uart_rx;
+                37, 38, 39, 40, 41, 42, 43: r_data[1] <= #1  r_data[1] + uart_rx;
+                53, 54, 55, 56, 57, 58, 59: r_data[2] <= #1  r_data[2] + uart_rx;
+                69, 70, 71, 72, 73, 74, 75: r_data[3] <= #1  r_data[3] + uart_rx;
+                85, 86, 87, 88, 89, 90, 91: r_data[4] <= #1  r_data[4] + uart_rx;
+                101, 102, 103, 104, 105, 106, 107: r_data[5] <= #1  r_data[5] + uart_rx;
+                117, 118, 119, 120, 121, 122, 123: r_data[6] <= #1  r_data[6] + uart_rx;
+                133, 134, 135, 136, 137, 138, 139: r_data[7] <= #1  r_data[7] + uart_rx;
+                149, 150, 151, 152, 153, 154, 155: sto_bit <= #1  sto_bit + uart_rx;
                 default: ;  // bps_cnt为其他值就什么也不干
             endcase
         end
@@ -132,18 +132,18 @@ module uart_byte_rx (
 
     // 采样完成后对data赋值
     always @(posedge clock or negedge reset_n) begin
-        if (!reset_n) data <= 0;
+        if (!reset_n) data <= #1  0;
         // 这里改为158, 是在rx_done上升沿时可以得到data的值
         else if (bps_clk_16x && bps_cnt == 158) begin  // 该时刻对应最后一次采样的瞬间
-            // data[0] <= r_data[0][2];  // 结果一致
-            data[0] <= (r_data[0] >= 4) ? 1'b1 : 1'b0;
-            data[1] <= (r_data[1] >= 4) ? 1'b1 : 1'b0;
-            data[2] <= (r_data[2] >= 4) ? 1'b1 : 1'b0;
-            data[3] <= (r_data[3] >= 4) ? 1'b1 : 1'b0;
-            data[4] <= (r_data[4] >= 4) ? 1'b1 : 1'b0;
-            data[5] <= (r_data[5] >= 4) ? 1'b1 : 1'b0;
-            data[6] <= (r_data[6] >= 4) ? 1'b1 : 1'b0;
-            data[7] <= (r_data[7] >= 4) ? 1'b1 : 1'b0;
+            // data[0] <= #1  r_data[0][2];  // 结果一致
+            data[0] <= #1  (r_data[0] >= 4) ? 1'b1 : 1'b0;
+            data[1] <= #1  (r_data[1] >= 4) ? 1'b1 : 1'b0;
+            data[2] <= #1  (r_data[2] >= 4) ? 1'b1 : 1'b0;
+            data[3] <= #1  (r_data[3] >= 4) ? 1'b1 : 1'b0;
+            data[4] <= #1  (r_data[4] >= 4) ? 1'b1 : 1'b0;
+            data[5] <= #1  (r_data[5] >= 4) ? 1'b1 : 1'b0;
+            data[6] <= #1  (r_data[6] >= 4) ? 1'b1 : 1'b0;
+            data[7] <= #1  (r_data[7] >= 4) ? 1'b1 : 1'b0;
         end
     end
 
@@ -152,9 +152,9 @@ module uart_byte_rx (
     // 实际应用中需要在stop发送完之前产生rx_done
     // 从uart_rx下降沿到rx_done脉冲结束需要的时间不足8680ns
     always @(posedge clock or negedge reset_n) begin
-        if (!reset_n) rx_done <= 1'b0;
-        else if (bps_clk_16x && bps_cnt == 159) rx_done <= 1'b1;
-        else rx_done <= 1'b0;
+        if (!reset_n) rx_done <= #1  1'b0;
+        else if (bps_clk_16x && bps_cnt == 159) rx_done <= #1  1'b1;
+        else rx_done <= #1  1'b0;
     end
 
 endmodule
