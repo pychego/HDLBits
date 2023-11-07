@@ -19,17 +19,16 @@ module uart_byte_rx (
     reg [2:0] sta_bit;
     reg [2:0] sto_bit;
 
-    // 两个D触发器检测边沿
-    reg [1:0] uart_rx_r;
+    // 避免亚稳态，使用三个触发器
+    reg [2:0] uart_rx_r;
     always @(posedge clock) begin
-        uart_rx_r[1] <=  uart_rx_r[0];
-        uart_rx_r[0] <=  uart_rx;
+        uart_rx_r <= {uart_rx_r[1:0], uart_rx}; 
     end
 
     // 定义uart_rx的上升沿和下降沿
     wire pedge_uart_rx, nedge_uart_rx;
-    assign pedge_uart_rx = (uart_rx_r == 2'b01);
-    assign nedge_uart_rx = (uart_rx_r == 2'b10);  // 检测到了uart_rx的下降沿 脉冲信号
+    assign pedge_uart_rx = (uart_rx_r[2:1] == 2'b01);
+    assign nedge_uart_rx = (uart_rx_r[2:1] == 2'b10);  // 检测到了uart_rx的下降沿 脉冲信号
 
     // 定义发送使能信号,规定了采样开始时间
     // !! 很重要的信号
