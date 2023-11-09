@@ -1,16 +1,17 @@
 /*
     多为数码管显示原理：轮回扫描 8个数码管共阴（8个管子的a脚接在一起，b脚接在一起），每个数码管的输入端有sel信号控制 
-    任一时刻只有一个管子在亮
+     
 */
 
 module digit_led (
-    input            clk,
-    input            reset_n,
-    input  [31:0]    disp_data,  // 32位显示数据
-    output reg [7:0] seg  // 接到数码管的a~g和dp seg[0]对应a
+    input             clk,
+    input             reset_n,
+    input      [31:0] disp_data,  // 32位显示数据
+    output reg [ 7:0] sel,        // 8个数码管的片选信号
+    output reg [ 7:0] seg         // 段选信号，接到数码管的a~g和dp seg[0]对应a
 );
-// 时序逻辑 num sel disp_temp
-// 组合逻辑 seg
+    // 时序逻辑 num sel disp_temp
+    // 组合逻辑 seg
 
 
     // 每次每个数码管显示1ms，需要50000个clk
@@ -37,8 +38,6 @@ module digit_led (
         end
     end
 
-    // 计数器后接译码器 输出数码管的片选信号
-    reg [7:0] sel;
     // 优先使用时序逻辑设计 让电路性能更优异
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
