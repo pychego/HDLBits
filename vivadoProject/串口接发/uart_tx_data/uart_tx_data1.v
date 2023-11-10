@@ -1,4 +1,4 @@
-// 串口向电脑发送5字节的数据
+// 串口向电脑发送5字节的数据 data40
 // 使用简单的分支语句
 module uart_tx_data1 (
     input             clock,

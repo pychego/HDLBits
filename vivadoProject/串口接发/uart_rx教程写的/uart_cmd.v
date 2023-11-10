@@ -1,5 +1,7 @@
 // 连接uart_byte_rx和counter_led_3
 // 考虑实际的延迟，可以将 <= 改为 <= #1
+//自己制定协议 0x55 0xa5 TIME[7:0] TIME[15:8] TIME[23:16] TIME[31:24] ctrl[7:0] 0xf0
+// 比对接收的数据，进行赋值
 module uart_cmd (
     input             clock,
     input             reset_n,

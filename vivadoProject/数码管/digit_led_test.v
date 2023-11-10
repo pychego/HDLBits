@@ -5,12 +5,12 @@ module digit_led_test (
     input reset_n,
     output seg7_sclk,
     output seg7_rclk,
-    output seg7_dio
+    output seg7_dio,
+    output uart_tx
     );
     
     // 数码管上要显示的内容，最低位对应数码管的最右边
     wire [31:0] disp_data;
-    assign disp_data = 32'h12345678;
     
     wire s_en;
     assign s_en = 1;
@@ -18,11 +18,25 @@ module digit_led_test (
     wire [7:0] sel;
     wire [7:0] seg;
 
+    uart_tx_data32_min uart_tx_data32_min_inst (
+        .clk       (clk),
+        .reset_n   (reset_n),
+        .data32    (disp_data),
+        .uart_tx   (uart_tx)
+    );
+
+
+    counter_time counter_time_inst(
+        .clk(clk),
+        .reset_n(reset_n),
+        .disp_data(disp_data)   // output
+    );
+    
 
     digit_led digit_led_inst(
         .clk(clk),
         .reset_n(reset_n),
-        .disp_data(disp_data),
+        .disp_data(disp_data),  // input
         .sel(sel),
         .seg(seg)
     );

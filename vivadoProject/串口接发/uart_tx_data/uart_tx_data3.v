@@ -13,7 +13,7 @@ module uart_tx_data3 (
     input      [7:0] n_byte,     // 发送n字节数据
     input            trans_go,
     output           uart_tx,
-    output reg       trans_done
+    output reg       trans_done  // ci
 );
     // 时序控制信号 send_go send_count tx_done 
     // 组合逻辑信号

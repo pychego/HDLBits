@@ -10,7 +10,8 @@ module counter_time (
     reg [ 7:0] min;
     reg [ 7:0] hour;
     reg [31:0] count;  // 最低计数器
-    parameter MCNT = 50_00;  // 0.1ms
+    // parameter MCNT = 50_00;  // 0.1ms  测试用
+    parameter MCNT = 50_000_000;  // 1s  上板子
 
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
@@ -62,7 +63,7 @@ module counter_time (
     assign disp_data[11: 8] = min  % 10;
     assign disp_data[ 7: 4] = sec  / 10;
     assign disp_data[ 3: 0] = sec  % 10;
-    // assign disp_data[23:16] = {4'b(hour / 10), 4'b(hour % 10)};
+    // assign disp_data[23:16] = {4'b(hour / 10), 4'b(hour % 10)};  报错
     // assign disp_data[15: 8] = {4'b(min  / 10), 4'b(min  % 10)};
     // assign disp_data[ 7: 0] = {4'b(sec  / 10), 4'b(sec  % 10)};
 
