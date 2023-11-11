@@ -1,6 +1,10 @@
-// 思想，将10个bit的发送时间分成了160段 每个bit划分16段 在每段的终点采样
-// 舍弃前5段和后4段
-// 串口接收的基本模块
+/*
+    // 思想，将10个bit的发送时间分成了160段 每个bit划分16段 在每段的终点采样
+    // 舍弃前5段和后4段
+    // 串口接收的基本模块
+    
+    从串口发送部分完全抄来的module 最基本的1个byte串口接收模块
+*/
 module uart_byte_rx (
     input            clk,
     input            reset_n,
@@ -43,7 +47,7 @@ module uart_byte_rx (
 
     reg [31:0] bps_DR;  // 每一位采样16次，舍弃前5次和后4次
     always @(*) begin
-        case (band_set)  // 擦色语句必须卸载always块中，不加begin end
+        case (band_set)  // case语句必须卸载always块中，不加begin end
             0: bps_DR = 1000_000_000 / 9600 / 16 / 20 - 1;  // 波特率9600
             1: bps_DR = 1000_000_000 / 19200 / 16 / 20 - 1;
             2: bps_DR = 1000_000_000 / 38400 / 16 / 20 - 1;

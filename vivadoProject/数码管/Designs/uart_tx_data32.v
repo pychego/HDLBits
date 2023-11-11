@@ -1,18 +1,27 @@
-// 功能同uart_tx_dota1相同，使用状态机完成，发送一个byte用一个状态
-// 串口向电脑发送4字节的数据
+/*
+    该模块串口向电脑发送4字节的数据 data32 子模块中设置bps 115200
+    uart_tx_data32 input [31:0] data32 待发送的4byte 先发送高位
+                   input trans_go       data32开始发送的使能信号 （脉冲信号）
+                   output uart_tx       串口输出
+                   output trans_done    data32传输结束信号
+
+    作为底层模块不直接参与顶层综合设计
+
+*/
 module uart_tx_data32 (
     input             clk,
     input             reset_n,
-    input      [31:0] data32,     // 40bit data
-    input             trans_go,   // 类似于send_go, 管40bit
+    input      [31:0] data32,    
+    input             trans_go,   
     output            uart_tx,
-    output reg        trans_done  // 40bit传输结束
+    output reg        trans_done  
 );
 
     /*  时序控制信号
     send_go uart_tx tx_done data state
     组合逻辑信号
     */
+
     reg        send_go;
     reg  [7:0] data;  // 每轮要发送的8bit
     wire       tx_done;
@@ -21,9 +30,9 @@ module uart_tx_data32 (
         .clk   (clk),
         .reset_n (reset_n),
         .send_go (send_go),
-        .band_set(4),        // 115200
-        .data    (data),     // 以上为输入
-        .uart_tx (uart_tx),
+        .band_set(4),           // 115200
+        .data    (data),     
+        .uart_tx (uart_tx),     // output
         .tx_done (tx_done)
     );
 

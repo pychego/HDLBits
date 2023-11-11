@@ -1,11 +1,14 @@
-// 串口通信模块，uart协议规定发送的数据位只能有6 7 8  已知bps, 传输每bit时间为1/bps
-// 串口发送 发送 发送  开发板向电脑发送数据
-// 传输一个bit的需要的clk周期数 1/bps * 100MHz / 20ns
+/*
+    // 串口通信模块，uart协议规定发送的数据位只能有6 7 8  已知bps, 传输每bit时间为1/bps
+    // 串口发送 发送 发送  开发板向电脑发送数据
+    // 传输一个bit的需要的clk周期数 1/bps * 100MHz / 20ns
+    抄来的 最基本的串口发送模块 发送1byte
+*/
 module uart_byte (
     input            clk,
     input            reset_n,
     input            send_go,   // 单脉冲信号，控制电平信号send_en 
-    input      [3:0] band_set,  // 波特率设置,8种选择
+    input      [3:0] band_set,  // 波特率设置 默认4为115200 bps
     input      [7:0] data,      // 并行输入
     output reg       uart_tx,   // 串口输出
     output reg       tx_done    // 发送完成

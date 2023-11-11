@@ -1,26 +1,30 @@
-// 连接uart_byte_rx和counter_led_3
-// 考虑实际的延迟，可以将 <= 改为 <= #1
-//自己制定协议 0x55 0xa5 随便1byte new_time[31:24] new_time[23:16] new_time[15:8] new_time[7:0] 0xf0
-// 共传输了8个byte
-// 比对接收的数据，进行赋值
+/*
+    考虑实际的延迟，可以将 <= 改为 <= #1
+    自己制定协议 0x55 0xa5 随便1byte new_time[31:24] new_time[23:16] new_time[15:8] new_time[7:0] 0xf0
+    共传输了8个byte    比对接收的数据，对new_time进行赋值
+    uart_cmd input [7:0] data    串口接收到的8byte数据
+             input rx_done       串口接收1byte完成 脉冲信号
+             output agree_done   串口接收data和协议一致，对比完成 脉冲信号,一个时钟周期
+             output [31:0] new_time 串口接收到的时间
+*/
 module uart_cmd (
     input             clk,
     input             reset_n,
-    input      [ 7:0] data,       // 串口接收到的数据
-    input             rx_done,    // 串口接收1byte完成
+    input      [ 7:0] data,       
+    input             rx_done,    
     output reg [31:0] new_time,
-    output reg        agree_done  //串口接收和协议一致，对比完成 脉冲信号,一个时钟周期
+    output reg        agree_done  
 );
 
     reg [7:0] memory[7:0];
 
+    // key rx_done延迟一个节拍rx_done控制移位 r_rx_done控制协议对比
     reg r_rx_done;
     always @(posedge clk) begin
         r_rx_done <= rx_done;
     end
 
-    // 数据移位更新
-    // 或者此处使用clk上升沿，将rx_done作为条件判断
+    // 数据移位更新 移位寄存器不需要reset_n
     always @(posedge clk) begin
         if (rx_done) begin  // 移位寄存，memory[0]是最新的数据
             memory[0] <= #1 memory[1];
@@ -47,13 +51,4 @@ module uart_cmd (
         end else agree_done <= #1 0;    // 注意agree_done高电平的时间,一个clk
     end
 
-    /*
-    // 解决先移位后对比的另一个办法 使用寄存器让r_rx_done比rx_done晚一个节拍
-    reg r_rx_done;
-    always @(posedge clk) begin
-        r_rx_done <= rx_done;
-    end
-    // 使用rx_done电平信号进行移位
-    // r_rx_done电平信号进行协议比对
-    */
 endmodule

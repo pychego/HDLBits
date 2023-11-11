@@ -1,12 +1,21 @@
-// 驱动74hc595芯片
-// 功能： 将并行16位数据（sel和seg）转化为串行数据
+/*
+    驱动74hc595芯片 595（移位寄存器）将串行数据转化为并行数据
+
+    该模块功能将并行data转换位串行dio输出
+    HC595driver  input [15:0] data={seg, sel} 16位并行
+                 output seg7_sclk  自己造一个12.5MHz的时钟， 控制data串行输出
+                 output seg7_rclk  data串行输出结束后发出使能脉冲， 控制595芯片将data并行输出
+                 output seg7_dio   data的串行输出信号
+
+    key seg7_sclk和dio的值配合 在sclk下降沿改变dio的值
+*/
 
 module HC595driver (
     input             clk,
     input             reset_n,
     input             s_en,       // 脉冲使能信号，高电平时用寄存器保存data的值
-    input      [15:0] data,       // 输入数据，在seg7_sclk的下降沿改变
-    output reg        seg7_sclk,  // 串行输入时钟，12.5MHz
+    input      [15:0] data,       
+    output reg        seg7_sclk,  
     output reg        seg7_rclk,
     output reg        seg7_dio
 );
@@ -24,10 +33,11 @@ module HC595driver (
     reg [31:0] count;
     parameter CNT_MAX = 2;
 
+    // 计数器
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
             count <= 0;
-        end else if (count == CNT_MAX - 1) begin  // count频率为25MHz
+        end else if (count == CNT_MAX - 1) begin  
             count <= 0;
         end else begin
             count <= count + 1;
@@ -36,7 +46,8 @@ module HC595driver (
 
     wire        sclk_plus = (count == 1);   // 25MHz
 
-    reg  [31:0] sclk_edge_cnt;  // 记录sclk_plus的上升沿个数，需要32个上升沿
+    // 记录sclk_plus的上升沿个数，需要32个上升沿
+    reg  [31:0] sclk_edge_cnt;  
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
             sclk_edge_cnt <= 0;

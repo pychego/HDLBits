@@ -1,4 +1,7 @@
-// 接收串口时间，检测能不能改变hour min sec
+/*
+    接收串口时间，检测能不能改变hour min sec
+    该模块不参与最终的综合设计，仅用来测试子模块
+*/
 
 module test_change_counter (
     input clk,
