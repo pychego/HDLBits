@@ -13,8 +13,8 @@ module counter_time (
     reg [ 7:0] min;
     reg [ 7:0] hour;
     reg [31:0] count;  // 最低计数器
-    // parameter MCNT = 50_00;  // 0.1ms  测试用
-    parameter MCNT = 50_000_000;  // 1s  上板子
+    parameter MCNT = 50_00;  // 0.1ms  测试用
+    // parameter MCNT = 50_000_000;  // 1s  上板子
 
     // 错误写法 多重驱动！！ 不同的always块中不能对同一个信号赋值
     // always @(posedge clk) begin     
