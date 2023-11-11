@@ -29,7 +29,7 @@ module uart_tx_data32_min (
         else count <= 0;
     end
 
-    // 操作trans_go 每个count周期刚开始令trans_go为1
+    // 操作trans_go 每个count周期（1min）刚开始令trans_go为1
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) trans_go <= 0;
         else if (count == 1) trans_go <= 1;
