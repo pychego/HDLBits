@@ -46,7 +46,7 @@ module digit_led_test (
     counter_time counter_time_inst (
         .clk       (clk),
         .reset_n   (reset_n),
-        .new_time  (new_time),    // input
+        .new_time  (new_time),    
         .agree_done(agree_done),
         .disp_data (disp_data)    // output
     );
@@ -67,14 +67,14 @@ module digit_led_test (
         .seg      (seg)
     );
 
-    // wire [15:0] data_seg_sel;  // 中间变量存放第一个模块的段选和片选信号
-    // assign data_seg_sel = {seg, sel};
+    wire [15:0] data_seg_sel;  // 中间变量存放第一个模块的段选和片选信号
+    assign data_seg_sel = {seg, sel};
 
     HC595driver HC595driver_inst (
         .clk      (clk),
         .reset_n  (reset_n),
         .s_en     (s_en),
-        .data     ({seg, sel}),
+        .data     (data_seg_sel),
         .seg7_sclk(seg7_sclk),   // output
         .seg7_rclk(seg7_rclk),
         .seg7_dio (seg7_dio)

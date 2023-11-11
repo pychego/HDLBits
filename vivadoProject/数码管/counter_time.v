@@ -16,13 +16,14 @@ module counter_time (
     // parameter MCNT = 50_00;  // 0.1ms  测试用
     parameter MCNT = 50_000_000;  // 1s  上板子
 
-    always @(posedge clk) begin
-        if (agree_done) begin
-            sec  <= new_time[ 7:0]/16*10 + new_time[ 7:0]%16;
-            min  <= new_time[15:8]/16*10 + new_time[15:8]%16;
-            hour <= new_time[23:16]/16*10 + new_time[23:16]%16;
-        end
-    end
+    // 错误写法 多重驱动！！ 不同的always块中不能对同一个信号赋值
+    // always @(posedge clk) begin     
+    //     if (agree_done) begin
+    //         sec  <= new_time[7:0] / 16 * 10 + new_time[7:0] % 16;
+    //         min  <= new_time[15:8] / 16 * 10 + new_time[15:8] % 16;
+    //         hour <= new_time[23:16] / 16 * 10 + new_time[23:16] % 16;
+    //     end
+    // end
 
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
@@ -36,27 +37,40 @@ module counter_time (
 
     // 操作sec
     always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) sec <= 0;
-        else if (MCNT - 1 <= count)
+        if (!reset_n) begin
+            sec <= 0;
+        end else if (agree_done) begin
+            sec <= new_time[7:0] / 16 * 10 + new_time[7:0] % 16;
+        end else if (MCNT - 1 <= count) begin
             if (sec >= 59) sec <= 0;
             else sec <= sec + 1;
+        end
+
     end
 
     // 操作min
     always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) min <= 0;
-        else if (MCNT - 1 <= count) begin
+        if (!reset_n) begin
+            min <= 0;
+        end else if (agree_done) begin
+            min <= new_time[15:8] / 16 * 10 + new_time[15:8] % 16;
+        end else if (MCNT - 1 <= count) begin
             if (sec >= 59) begin  // 此刻是59秒结束的时刻
+                // 满足以上条件时， min要变化了
                 if (min >= 59) min <= 0;
                 else min <= min + 1;
             end
         end
+
     end
 
     // 操作hour
     always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) hour <= 0;
-        else if (MCNT - 1 <= count) begin
+        if (!reset_n) begin
+            hour <= 0;
+        end else if (agree_done) begin
+            hour <= new_time[23:16] / 16 * 10 + new_time[23:16] % 16;
+        end else if (MCNT - 1 <= count) begin
             if (sec >= 59) begin  // 此刻是59秒结束的时刻
                 if (min >= 59) begin  // 此刻是59分结束的时刻
                     // 满足以上条件时， hour要变化了

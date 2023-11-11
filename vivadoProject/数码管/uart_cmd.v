@@ -21,10 +21,8 @@ module uart_cmd (
 
     // 数据移位更新
     // 或者此处使用clk上升沿，将rx_done作为条件判断
-    always @(posedge clk or negedge reset_n) begin
-        if (!reset_n) begin
-            agree_done <= #1 0;
-        end else if (rx_done) begin  // 移位寄存，memory[0]是最新的数据
+    always @(posedge clk) begin
+        if (rx_done) begin  // 移位寄存，memory[0]是最新的数据
             memory[0] <= #1 memory[1];
             memory[1] <= #1 memory[2];
             memory[2] <= #1 memory[3];
@@ -39,6 +37,7 @@ module uart_cmd (
     // 必须先移位再判断，如果移位和判断在同一时刻，判断的是之前的数据
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
+            agree_done <= #1 0;
             new_time <= #1 32'h00000000;
         end else if (r_rx_done) begin
             if (memory[0] == 8'h55 && memory[1] == 8'ha5 && memory[7] == 8'hf0) begin
