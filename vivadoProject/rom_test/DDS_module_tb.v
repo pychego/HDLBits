@@ -1,3 +1,4 @@
+// 更改fword频率控制字, 测试DDS的输出的信号频率
 `timescale 1ns/1ns
 
 module DDS_module_tb ();

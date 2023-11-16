@@ -34,7 +34,11 @@ module DDS_module (
 
     // rom模块
     // 4096个地址, 存放的4096个数据是正弦波的一个周期
-    // F_0 = fword * F_clk / 2^N , N=32
+    /*
+        理解 F_0 = fword * F_clk / 2^N , N=32
+        考虑使用12位地址,共4096个点存放一个周期正弦波,若fword=2^20,则F_0=F_clk / 2^12
+        此时,addr也是每clk加一,故频率为F_clk / 4096, 和公式算出来的结果一样
+    */
     rom rom_inst(
         .clka(clk),
         .addra(addr),
