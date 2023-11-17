@@ -19,7 +19,7 @@ module uart_byte (
 count uart_tx bps_count tx_done send_en
 组合逻辑信号-----------------
 data bps_clk   */
-    // 根据band_set译码bps_DR
+    // 根据band_set译码bps_DR: 发送一个bit需要的时钟数目
     always @(*) begin
         case (band_set)
             0: bps_DR = 100_0000_000 / 9600 / 20;  // bps=9600
