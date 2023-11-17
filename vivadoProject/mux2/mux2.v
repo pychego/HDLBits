@@ -1,4 +1,4 @@
-module moduleName (
+module mux2 (
     input  a,
     input  b,
     input  sel,
