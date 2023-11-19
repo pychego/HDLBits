@@ -1,5 +1,5 @@
 /*  按键的物理特性：抖动
-    状态机实现按键消抖，消抖时间20ms
+    状态机实现按键消抖，消抖时间20ms MCNT默认针对clk=50MHz
     0：空闲 idle 来下降沿之后进入按下消抖（1）
     1：按下消抖 p_filter 20ms内没有上升沿就进入等待释放（3），否则保持原态
     2：等待释放 wait_release 来上升沿之后进入释放消抖（3）
@@ -40,7 +40,7 @@ module shake_suppression (
     // 在20ms内再次判断是否有沿发生
     reg [31:0] count;
     reg        flag;  // 标志信号判断是否记时达到20ms
-    parameter MCNT = 1_000_000;  // 20ms周期数
+    parameter MCNT = 1_000_000;  // 20ms周期数, 注意此值时在clk=50MHz下得到的
 
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin

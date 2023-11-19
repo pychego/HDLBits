@@ -6,6 +6,8 @@
     4 能够输出的波形形式（正弦波 方波 三角波）
 
     基本可以完成了
+    
+    时钟管理单元：通过锁相环可以将有源晶振50MHz提升到125MHz 使用IP核 Clocking wizard
 */
 module DDS_AD9767 (
     input         clk,
