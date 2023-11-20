@@ -1,3 +1,9 @@
+/*
+    在7020上验证，输出RGB为444 vga_HS vga_VS 
+*/
+
+`include "vga_parameter.v"
+
 module vga_ctrl_test (
     input         clk,
     input         reset_n,
@@ -7,19 +13,19 @@ module vga_ctrl_test (
 );
 
     reg  [11:0] disp_data;
-    wire [ 9:0] hcount;
-    wire [ 8:0] vcount;
+    wire [31:0] hcount;
+    wire [31:0] vcount;
     wire        clk25m;
     wire        vga_BLK;
     wire        data_request;
 
+    // 锁相环 将100MHz降到25MHz
     vga_pll instance_name (
         // Clock out ports
-        .clk_out1(clk25m),  // output clk_out1
+        .clk_out1(clk25m),
         // Clock in ports
         .clk_in1 (clk)
-    );  // input clk_in1
-    // INST_TAG_END ------ End INSTANTIATION Template ---------
+    );
 
 
     localparam 
@@ -42,12 +48,11 @@ module vga_ctrl_test (
         r3_c0 = YELLOW,
         r3_c1 = WHITE;
 
-    parameter DISP_WIDTH = 640;
-    parameter DISP_HEIGHT = 480;
+    parameter DISP_WIDTH = `H_Data_Time;
+    parameter DISP_HEIGHT = `V_Data_Time;
 
     assign c0_act = (hcount >= 0) && (hcount < DISP_WIDTH / 2);
     assign c1_act = (hcount >= DISP_WIDTH / 2) && (hcount < DISP_WIDTH);
-
 
     assign r0_act = (vcount >= 0) && (vcount < DISP_HEIGHT / 4);
     assign r1_act = (vcount >= DISP_HEIGHT / 4) && (vcount < DISP_HEIGHT / 2);

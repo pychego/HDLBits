@@ -2,17 +2,16 @@
 
 module vga_ctrl_tb ();
 
-
     reg         clk;
     reg         reset_n;
     reg  [23:0] data;
     wire        data_request;
-    wire [ 9:0] hcount;
-    wire [ 8:0] vcount;
+    wire [31:0] hcount;
+    wire [31:0] vcount;
     wire        vga_HS;
     wire        vga_VS;
     wire        vga_BLK;
-    wire [23:0] vga_RGB;
+    wire [11:0] vga_RGB;
 
     vga_ctrl vga_ctrl_inst (
         .clk         (clk),
@@ -44,6 +43,5 @@ module vga_ctrl_tb ();
         else if (!data_request) data <= data;
         else data <= data + 1;
     end
-
 
 endmodule
