@@ -12,8 +12,8 @@
 */
 
 module fifo2axi4 #(
-    parameter WR_AXI_BYTE_ADDR_BEGIN = 0,
-    parameter WR_AXI_BYTE_ADDR_END   = 200,
+    parameter WR_AXI_BYTE_ADDR_BEGIN = 0,   // 写入data的开始地址
+    parameter WR_AXI_BYTE_ADDR_END   = 200, // 写入data的结束地址
     parameter RD_AXI_BYTE_ADDR_BEGIN = 0,
     parameter RD_AXI_BYTE_ADDR_END   = 200,
 
@@ -28,7 +28,7 @@ module fifo2axi4 #(
     input                       reset,
     // wr_fifo wr Interface
     input                       wr_addr_clr,       //sync clk
-    output                      wr_fifo_rdreq,
+    output                      wr_fifo_rdreq,     // 与写fifo的接口，输出到写fifo
     input  [AXI_DATA_WIDTH-1:0] wr_fifo_rddata,
     input                       wr_fifo_empty,
     input  [               5:0] wr_fifo_rd_cnt,
@@ -209,11 +209,11 @@ module fifo2axi4 #(
     assign m_axi_awprot = 3'b000;
     assign m_axi_awqos = 4'b0000;
     assign m_axi_awregion = 4'b0000;
-    assign m_axi_awlen = AXI_BURST_LEN[7:0];
+    assign m_axi_awlen = AXI_BURST_LEN[7:0];    //burst length = 32
 
     assign m_axi_wstrb = 16'hffff;
     assign m_axi_wdata = wr_fifo_rddata;
-    assign m_axi_bready = 1'b1;
+    assign m_axi_bready = 1'b1;                 // 写响应始终为1
     assign m_axi_arid = AXI_ID[AXI_ID_WIDTH-1:0];
     assign m_axi_arsize = DATA_SIZE;
     assign m_axi_arburst = 2'b01;
@@ -222,23 +222,26 @@ module fifo2axi4 #(
     assign m_axi_arprot = 3'b000;
     assign m_axi_arqos = 4'b0000;
     assign m_axi_arregion= 4'b0000;
-    assign m_axi_arlen = AXI_BURST_LEN[7:0];
+    assign m_axi_arlen = AXI_BURST_LEN[7:0];    // 涉及到读写数据的都是这个值 32
     assign m_axi_rready = ~rd_fifo_alfull;
+    // ----------------------以上设计完成AXI接口信号-------------------------
 
+
+    // 不懂？？？？
     assign wr_fifo_rdreq = (~axi_awaddr_clr) && m_axi_wvalid &&
     m_axi_wready;
     assign rd_fifo_wrreq = (~axi_araddr_clr) && m_axi_rvalid &&
     m_axi_rready;
-    assign rd_fifo_wrdata = m_axi_rdata;
+    assign rd_fifo_wrdata = m_axi_rdata;    // 将从AXI接口中读到的数据送到rd_fifo
 
     assign wr_req_cnt_thresh = (m_axi_awlen == 'd0)? 1'b1 :
-    (AXI_BURST_LEN[7:0]+1'b1-2'd2);//计数比实际数量少 2
+    (AXI_BURST_LEN[7:0]+1'b1-2'd2);         //计数比实际数量少 2
 
-    assign rd_req_cnt_thresh = AXI_BURST_LEN[7:0];
+    assign rd_req_cnt_thresh = AXI_BURST_LEN[7:0];  // 31
     assign wr_ddr3_req = (wr_fifo_rst_busy == 1'b0) && (wr_fifo_rd_cnt >=
-    wr_req_cnt_thresh) ? 1'b1:1'b0;
+    wr_req_cnt_thresh) ? 1'b1:1'b0;             // 送的数量达到一定值之后才发出写入ddr3的指令
     assign rd_ddr3_req = (rd_fifo_rst_busy == 1'b0) && (rd_fifo_wr_cnt <=
-    rd_req_cnt_thresh) ? 1'b1:1'b0;
+    rd_req_cnt_thresh) ? 1'b1:1'b0;             // ？？？？？
 
     // ---------------------产生写过程中的各种信号-------------------------
     // 写地址信号m_axi_awaddr m_axi_awvalid
@@ -334,13 +337,13 @@ module fifo2axi4 #(
 
     //**********************************
     //The following function calculates the awsize/arsize width based on AXI_DATA_WIDTH
-    //**********************************
+    //********************************** for语句可以综合？？
+    // 计算一个二进制数的最高非0位是第几位
     function integer clogb2;
     input integer axi_data_byte;
         for (clogb2=0; axi_data_byte>0; clogb2=clogb2+1)
         axi_data_byte = axi_data_byte >> 1;
     endfunction
-
-
+    
 
 endmodule
