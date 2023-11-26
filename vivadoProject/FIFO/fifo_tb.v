@@ -25,6 +25,7 @@ module fifo_tb ();
 
     /*
         学习fifo的每个端口含义
+        First word Fall Through  只要fifo有数据，dout就是里面的第一个数据，来了rden之后就开始读出第二个数据
         rst下降沿到来即为复位结束，fifo要反应一段时间才能工作
         full almost_full有设置选项在复位时设置为0或1，这里选0
         rst    配置ip核时选择了高电平有效
@@ -74,9 +75,9 @@ module fifo_tb ();
         rst   = 1;
         wr_en = 0;
         rd_en = 0;
-        din   = 0;
+        din   = 16'h1111;
         #405;
-        rst   = 0;
+        rst = 0;
         #300;
         wr_en = 1;
         repeat (300) begin

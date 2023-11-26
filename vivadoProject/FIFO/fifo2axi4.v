@@ -28,24 +28,23 @@ module fifo2axi4 #(
     input                       reset,
     // wr_fifo wr Interface
     input                       wr_addr_clr,       //sync clk
-    output                      wr_fifo_rdreq,     // 与写fifo的接口，输出到写fifo
-    input  [AXI_DATA_WIDTH-1:0] wr_fifo_rddata,
-    input                       wr_fifo_empty,
-    input  [               5:0] wr_fifo_rd_cnt,
+    output                      wr_fifo_rdreq,     // 与wr_fifo的接口，输出到wr_fifo的rd_en
+    input  [AXI_DATA_WIDTH-1:0] wr_fifo_rddata,    // 从wr_fifo读出送入ddr3的data
+    input                       wr_fifo_empty,     // 没用到的端口
+    input  [               5:0] wr_fifo_rd_cnt,    // wr_fifo中可供读取的read width
     input                       wr_fifo_rst_busy,
     // rd_fifo rd Interface
     input                       rd_addr_clr,
     output                      rd_fifo_wrreq,
     output [AXI_DATA_WIDTH-1:0] rd_fifo_wrdata,
     input                       rd_fifo_alfull,
-    input  [               5:0] rd_fifo_wr_cnt,
+    input  [               5:0] rd_fifo_wr_cnt,     // rd_fifo中已经写入的 write width
     input                       rd_fifo_rst_busy,
-
     // Master Interface Write Address Ports 写addr AW
     output     [    AXI_ID_WIDTH-1:0] m_axi_awid,      // 写地址信号组的ID tag
-    output reg [  AXI_ADDR_WIDTH-1:0] m_axi_awaddr,
+    output reg [  AXI_ADDR_WIDTH-1:0] m_axi_awaddr,    // 输出到mig的地址和控制信息
     output     [                 7:0] m_axi_awlen,     // 突发式传输数据的个数为awlen+1
-    output     [                 2:0] m_axi_awsize,    // 每个突发传输数据的字节数
+    output     [                 2:0] m_axi_awsize,    // 每个突发传输数据的字节数 4
     output     [                 1:0] m_axi_awburst,   // 突发传输类型
     output     [                 0:0] m_axi_awlock,    // 锁类型
     output     [                 3:0] m_axi_awcache,   // cache类型
@@ -53,7 +52,7 @@ module fifo2axi4 #(
     output     [                 3:0] m_axi_awqos,     // 质量服务
     output     [                 3:0] m_axi_awregion,  // 区域标识符
     output reg                        m_axi_awvalid,   // 写地址有效
-    input                             m_axi_awready,   // slave端准备好接收写地址
+    input                             m_axi_awready,   // mig输入给该模块 slave端准备好接收写地址
     // Master Interface Write Data Ports  写data W
     output     [  AXI_DATA_WIDTH-1:0] m_axi_wdata,     // 128位写入的数据
     output     [AXI_DATA_WIDTH/8-1:0] m_axi_wstrb,     // 写数据有效的字节阀门
@@ -80,7 +79,7 @@ module fifo2axi4 #(
     input                             m_axi_arready,
     // Master Interface Read Data Ports 读data R
     input      [    AXI_ID_WIDTH-1:0] m_axi_rid,
-    input      [  AXI_DATA_WIDTH-1:0] m_axi_rdata,
+    input      [  AXI_DATA_WIDTH-1:0] m_axi_rdata,     // ddr3送入axi总线中的读data
     input      [                 1:0] m_axi_rresp,     // 读响应
     input                             m_axi_rlast,
     input                             m_axi_rvalid,
@@ -97,7 +96,7 @@ module fifo2axi4 #(
              S_RD_ADDR = 6'b010000,
              S_RD_RESP = 6'b100000;
 
-    localparam DATA_SIZE = clogb2(AXI_DATA_WIDTH / 8 - 1);
+    localparam DATA_SIZE = clogb2(AXI_DATA_WIDTH / 8 - 1);  // 4
 
     wire [7:0] wr_req_cnt_thresh;
     wire [7:0] rd_req_cnt_thresh;
@@ -212,7 +211,7 @@ module fifo2axi4 #(
     assign m_axi_awlen = AXI_BURST_LEN[7:0];    //burst length = 32
 
     assign m_axi_wstrb = 16'hffff;
-    assign m_axi_wdata = wr_fifo_rddata;
+
     assign m_axi_bready = 1'b1;                 // 写响应始终为1
     assign m_axi_arid = AXI_ID[AXI_ID_WIDTH-1:0];
     assign m_axi_arsize = DATA_SIZE;
@@ -226,25 +225,39 @@ module fifo2axi4 #(
     assign m_axi_rready = ~rd_fifo_alfull;
     // ----------------------以上设计完成AXI接口信号-------------------------
 
-
-    // 不懂？？？？
+    // ---------------------操作wr_ddr3_fifo 与fifo2axi4之间的接口---------------
+    // wr_fifo_rdreq有效即wr_fifo的rd_en信号有效 将wr_fifo中数据送入ddr3
+    // 该信号输入到wr_fifo为rd_en   axi总线侧和slave都准备好了，开始对ddr3写入数据
     assign wr_fifo_rdreq = (~axi_awaddr_clr) && m_axi_wvalid &&
-    m_axi_wready;
+                            m_axi_wready;
+    // wr_fifo中暂存的数据通过axi写入ddr3
+    assign m_axi_wdata = wr_fifo_rddata;        
+
+    
+    // rd_fifo_wrreq有效即rd_fifo的wr_en信号有效 ddr3的内容可以被读出来 写入到rd_fifo
     assign rd_fifo_wrreq = (~axi_araddr_clr) && m_axi_rvalid &&
-    m_axi_rready;
+                            m_axi_rready;
     assign rd_fifo_wrdata = m_axi_rdata;    // 将从AXI接口中读到的数据送到rd_fifo
 
-    assign wr_req_cnt_thresh = (m_axi_awlen == 'd0)? 1'b1 :
-    (AXI_BURST_LEN[7:0]+1'b1-2'd2);         //计数比实际数量少 2
 
+    assign wr_req_cnt_thresh = (m_axi_awlen == 'd0)? 1'b1 :
+    (AXI_BURST_LEN[7:0]+1'b1-2'd2);         //计数比实际数量少2 本例中为30
     assign rd_req_cnt_thresh = AXI_BURST_LEN[7:0];  // 31
+
+    // ----------------------------axi总线读写触发信号--------------------------
+    // 当wr_fifo存放了30个read width（128bit）后，axi总线开始 写addr AW
+    // 理解：wr_fifo写端口每次写入16bit，读端口每次读出128bit，故read width为30时，axi总线可以很快读出32个总线单位
     assign wr_ddr3_req = (wr_fifo_rst_busy == 1'b0) && (wr_fifo_rd_cnt >=
     wr_req_cnt_thresh) ? 1'b1:1'b0;             // 送的数量达到一定值之后才发出写入ddr3的指令
+    // rd_fifo的write width是64， 只要其值小于31，剩余空间就还够读入一次burst
     assign rd_ddr3_req = (rd_fifo_rst_busy == 1'b0) && (rd_fifo_wr_cnt <=
-    rd_req_cnt_thresh) ? 1'b1:1'b0;             // ？？？？？
+    rd_req_cnt_thresh) ? 1'b1:1'b0;             // 只要我rd_fifo中数据不够多，就一直从ddr3中读数据
+
 
     // ---------------------产生写过程中的各种信号-------------------------
     // 写地址信号m_axi_awaddr m_axi_awvalid
+    // 地址一字节为单位,每次地址增量为突发写数据个数(m_axi_awlen + 1)*每个数据的字节数(AXI_DATA_WIDTH / 8)
+    // 每次地址加512byte
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             m_axi_awaddr <= WR_AXI_BYTE_ADDR_BEGIN;
@@ -252,12 +265,14 @@ module fifo2axi4 #(
         else if (m_axi_awaddr >= WR_AXI_BYTE_ADDR_END) m_axi_awaddr <= WR_AXI_BYTE_ADDR_BEGIN;
         else if(curr_wr_state == S_WR_RESP && m_axi_bready && m_axi_bvalid &&
         (m_axi_bresp == 2'b00) && (m_axi_bid == AXI_ID[AXI_ID_WIDTH-1:0]))
+        // 在成功写入一次数据之后,更改下次写入data的地址
             m_axi_awaddr <= m_axi_awaddr + ((m_axi_awlen + 1) * (AXI_DATA_WIDTH / 8));
         else begin
             m_axi_awaddr <= m_axi_awaddr;
         end
     end
 
+    // 内部发出写地址valid信号
     always @(posedge clk or posedge reset) begin
         if(reset) begin
             m_axi_awvalid <= 1'b0;
@@ -291,6 +306,8 @@ module fifo2axi4 #(
             wr_data_cnt <= 0;
     end
 
+    // burst写入ddr3 每轮次写入32个总线单位 wr_data_cnt=31期间last为高电平
+    // 正好再来一个clk后读出last为高电平，这个clk就读入的是最后一个数据
     always @(posedge clk or posedge reset) begin
         if(reset) begin
             m_axi_wlast <= 0;
@@ -298,14 +315,16 @@ module fifo2axi4 #(
         // 此时S_WR_DATA只能持续一个clk
             m_axi_wlast <= 1;
      else if(curr_wr_state==S_WR_DATA && m_axi_awready && m_axi_awvalid &&
-             (wr_data_cnt==m_axi_awlen-1))    // 存疑
+             (wr_data_cnt==m_axi_awlen-1))    // 比较wr_data_cnt和30
                  m_axi_wlast <= 1;
         else m_axi_wlast <= 0;
     end
 
 
     // ---------------------产生读过程中的各种信号-------------------------
-    // 读地址过程 m_axi_araddr
+    // 读地址过程 m_axi_araddr 128位
+    // 这里处理简单了很多，读就从最低位开始读
+    // 每一轮burst m_axi_araddr就加上(m_axi_arlen + 1) * (AXI_DATA_WIDTH / 8) byte
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             m_axi_araddr <= RD_AXI_BYTE_ADDR_BEGIN;
@@ -345,5 +364,4 @@ module fifo2axi4 #(
         axi_data_byte = axi_data_byte >> 1;
     endfunction
     
-
 endmodule

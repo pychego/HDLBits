@@ -15,14 +15,14 @@ module fifo_axi4_adapter #(
     input                         clk,              // 此为AXI时钟
     input                         reset,
     // wr_fifo wr Interface
-    input                         wrfifo_clr,       // fifo reset
+    input                         wrfifo_clr,       // wr_fifo复位信号
     input                         wrfifo_clk,       // 与用户模块时钟相同
     input                         wrfifo_wren,
     input  [         FIFO_DW-1:0] wrfifo_din,
     output                        wrfifo_full,
     output [                15:0] wrfifo_wr_cnt,
     // rd_fifo rd Interface
-    input                         rdfifo_clr,
+    input                         rdfifo_clr,       // rd_fifo复位信号
     input                         rdfifo_clk,       // 与用户模块时钟相同
     input                         rdfifo_rden,
     output [         FIFO_DW-1:0] rdfifo_dout,
@@ -73,6 +73,7 @@ module fifo_axi4_adapter #(
     input                         m_axi_rvalid,
     output                        m_axi_rready
 );
+    // 两个fifo与fifo2axi4模块之间的连线
     wire                      wrfifo_rden;
     wire [AXI_ADDR_WIDTH-1:0] wrfifo_dout;
     wire [               5:0] wrfifo_rd_cnt;
@@ -98,7 +99,7 @@ module fifo_axi4_adapter #(
         写端口时钟和用户模块相同，读端口时钟与AXI时钟相同
     */
     //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-    wr_ddr3_fifo your_instance_name (
+    wr_ddr3_fifo wr_ddr3_fifo (
         .rst          (wrfifo_clr),            // input wire rst
         .wr_clk       (wrfifo_clk),            // input wire wr_clk
         .rd_clk       (clk),                   // input wire rd_clk
@@ -108,8 +109,8 @@ module fifo_axi4_adapter #(
         .dout         (wrfifo_dout),           // output wire [63 : 0] dout
         .full         (wrfifo_full),           // output wire full
         .empty        (wrfifo_empty),          // output wire empty
-        .rd_data_count(wrfifo_rd_data_count),  // output wire [5 : 0] rd_data_count
-        .wr_data_count(wrfifo_wr_data_count),  // output wire [7 : 0] wr_data_count
+        .rd_data_count(wrfifo_rd_cnt),  // output wire [5 : 0] rd_data_count
+        .wr_data_count(wrfifo_wr_cnt),  // output wire [7 : 0] wr_data_count
         .wr_rst_busy  (wrfifo_wr_rst_busy),    // output wire wr_rst_busy
         .rd_rst_busy  (wrfifo_rd_rst_busy)     // output wire rd_rst_busy
     );
@@ -129,7 +130,7 @@ module fifo_axi4_adapter #(
         .full         (rdfifo_full),
         .empty        (rdfifo_empty),
         .rd_data_count(rdfifo_rd_cnt),
-        .wr_data_count(rdfifo_wr_cnt),
+        .wr_data_count(rdfifo_wr_cnt),  // output
         .wr_rst_busy  (rdfifo_wr_rst_busy),
         .rd_rst_busy  (rdfifo_rd_rst_busy)
     );
@@ -160,6 +161,7 @@ module fifo_axi4_adapter #(
         .clk             (clk),
         .reset           (reset),
         //FIFO Interface ports
+        // fifo reset信号到了之后2个clk之后wr_addr_clr有效
         .wr_addr_clr     (wr_addr_clr),        //1:clear, sync clk
         .wr_fifo_rdreq   (wrfifo_rden),
         .wr_fifo_rddata  (wrfifo_dout),

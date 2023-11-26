@@ -14,6 +14,9 @@
 // Additional Comments:
 // 
 /////////////////////////////////////////////////////////////////////////////////
+/*
+    因为写入ddr3的数据是按地址从低到高循序写入的，因此wr_fifo只输送要写入的data，没有addr
+*/
 
 `timescale 1ns / 100ps  // 时间单位1ns 仿真时间精度100ps
 
@@ -180,7 +183,7 @@ module fifo_axi4_adapter_tb;
     fifo_axi4_adapter #(
         .FIFO_DW               (16),
         .WR_AXI_BYTE_ADDR_BEGIN(1),
-        .WR_AXI_BYTE_ADDR_END  (SIM_DATA_CNT * 2),
+        .WR_AXI_BYTE_ADDR_END  (SIM_DATA_CNT * 2),  // ddr3地址的字节数
         .RD_AXI_BYTE_ADDR_BEGIN(1),
         .RD_AXI_BYTE_ADDR_END  (SIM_DATA_CNT * 2),
 

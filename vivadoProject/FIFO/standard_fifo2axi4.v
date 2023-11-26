@@ -202,7 +202,7 @@ module fifo2axi4
       m_axi_wvalid <= m_axi_wvalid;
   end
 
-  //wr_data_cnt
+  //wr_data_cnt 每次写data过程中已经写入的data数 单位128bit
   always@(posedge clk or posedge reset)
   begin
     if(reset)
