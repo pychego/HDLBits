@@ -1,17 +1,20 @@
 // Initialize the DAC and output the correct control instructions
+// How to ensure control_output and timing coordination
 module DAC81416_cmd_gen (
     input clk,
     input rst_n,
     (*mark_DEBUG = "TRUE"*) input start_init_dac,  // come from PS
     (*mark_DEBUG = "TRUE"*) input start,
-    (*mark_DEBUG = "TRUE"*) input [15:0] control_output,
-    (*mark_DEBUG = "TRUE"*) output reg [23:0] dac_cmd,          // the two signals are passed to DAC81416_spi
+    (*mark_DEBUG = "TRUE"*) input [15:0] control_output,  // Waiting to write to DAC register
+    (*mark_DEBUG = "TRUE"*)
+                            output reg [23:0] dac_cmd,  // the two signals are passed to DAC81416_spi
     (*mark_DEBUG = "TRUE"*) output reg dac_cmd_valid
     // mark_DEBUG is a Vivado directive that allows you to see the values of the signals in the simulation
 );
 
 
     // localparam is used to define constants, which can not be passed as parameters to other modules
+    // the address comes from the datasheet technical manual of DAC81416
     localparam SPICONFIG_REG_ADDR = 6'b000011;
     localparam GENCONFIG_REG_ADDR = 6'b000100;
     localparam DACPWDWN_REG_ADDR = 6'b001001;
@@ -33,7 +36,7 @@ module DAC81416_cmd_gen (
     assign clk_10kHz_en = (cnt == 14'd1);
 
     // frequency is 10kHz, so cycle is 0.1ms
-    // count_10kHz from 0 to 9, which is a control cycle
+    // count_10kHz from 0 to 9, which is a control cycle, 1ms
     reg [3:0] count_10kHz;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz <= 4'd0;
@@ -125,7 +128,9 @@ module DAC81416_cmd_gen (
                         end
                     endcase
                 end
-            end else begin  // if receive start from PS, then enter the normal working phase
+            end else begin  
+                // send start signal only after initialization is completed
+                // if receive start from PS, then enter the normal working phase
                 // count_10kHz from 0 to 9, which is a control cycle and the total time is 1ms
                 // count_10kHz stays every state for 0.1ms
                 case (count_10kHz)

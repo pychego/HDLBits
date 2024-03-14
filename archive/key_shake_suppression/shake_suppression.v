@@ -29,10 +29,10 @@ module shake_suppression (
         key_value_reg <= {key_value_reg[1:0], key_value};
     end
 
-    // 上升沿和下降沿判断 脉冲信号
+    // 上升沿和下降沿判断 脉冲信号, 三级寄存器等两拍确定边沿
     wire pedge, nedge;
-    assign pedge = key_value_reg == 2'b01;
-    assign nedge = key_value_reg == 2'b10;
+    assign pedge = key_value_reg[2:1] == 2'b01;
+    assign nedge = key_value_reg[2:1] == 2'b10;
 
     reg p_flag, r_flag;     // 按下标志和释放标志   
     assign key_flag = p_flag | r_flag;  // 按键状态改变的标志信号
