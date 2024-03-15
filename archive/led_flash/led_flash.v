@@ -1,6 +1,6 @@
 // 设计4个led灯以不同的频率闪烁
 // 首先设计一个led闪烁的模块,再用参数化进行4个实例化即可
-
+// 最简单的module,可以用来测试新板子的功能
 module led_flash (
     input clock,
     input reset_n,

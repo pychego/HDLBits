@@ -14,6 +14,7 @@ module SSI_gray_driver_tb ();
         #15 rst_n = 1'b1;
     end
 
+    // 100Mhz
     always #5 clk = ~clk;
 
     always @(posedge SSI_clk) begin
@@ -28,7 +29,7 @@ module SSI_gray_driver_tb ();
         .clk     (clk),
         .rst_n   (rst_n),
         .SSI_data(SSI_data),
-        .SSI_clk (SSI_clk),     // output to where?
+        .SSI_clk (SSI_clk),     // output to sensor
         .loc_data(loc_data)
     );
 
