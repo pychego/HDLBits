@@ -2,7 +2,8 @@
 
 module my_BRAM_wr_controller_tb ();
 
-    reg clk, rst_n;
+    reg         clk;
+    reg         rst_n;
     reg         start;
     wire        bram_en;
     wire [ 3:0] bram_we;
@@ -22,7 +23,7 @@ module my_BRAM_wr_controller_tb ();
     always #5 clk = ~clk;
 
     initial begin
-        bram_count = 1000;
+        bram_count = 10;  // 1000
     end
 
     initial begin

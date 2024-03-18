@@ -1,3 +1,6 @@
+// bram_count is the number of data in one of the ping-pang buffer, 
+// consisting of two data buffers in total
+
 module my_BRAM_wr_controller (
     input        clk,
     input        rst_n,
@@ -78,9 +81,10 @@ module my_BRAM_wr_controller (
         end else if (clk_10kHz_en) begin
             if(((bram_addr == (bram_count << 2) - 32'd4)
 			|| (bram_addr == (bram_count << 3) - 32'd4))
-			&& bram_count != 32'd0				//!=0鏄负浜嗛槻姝竴寮�濮嬫潯浠舵垚绔嬪鑷碽ram_wr_done = 1
+			&& bram_count != 32'd0			
             && bram_en == 1'b1) begin
-                bram_wr_done <= ~bram_wr_done;      //缈昏浆锛岃繛鎺ュ埌AXI_GPIO鐢ㄤ簬浜х敓涓柇锛岄�氱煡PS涓婁紶鏁版嵁
+                // Flip bram_wr_done halfway through or after writing to the last address
+                bram_wr_done <= ~bram_wr_done;     
             end
         end
     end
