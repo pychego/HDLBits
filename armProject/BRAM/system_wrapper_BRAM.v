@@ -51,6 +51,7 @@ module system_wrapper_BRAM (
     inout        FIXED_IO_ps_porb,
     inout        FIXED_IO_ps_srstb
 );
+    //  GPIO是一个内部接口
 
     wire [31:0] BRAM_PORTB_addr;
     wire BRAM_PORTB_clk;
@@ -58,14 +59,14 @@ module system_wrapper_BRAM (
     wire [31:0] BRAM_PORTB_dout;
     wire BRAM_PORTB_en;
     wire BRAM_PORTB_rst;
-    wire [3:0] BRAM_PORTB_we;
+    wire [3:0] BRAM_PORTB_we;   // 写使能端口, 高电平写入
     wire [0:0] GPIO_tri_i_0;
     wire [1:1] GPIO_tri_i_1;
     wire [0:0] GPIO_tri_o_0;
     wire [1:1] GPIO_tri_o_1;
     wire [0:0] aresetn;
 
-    reg gpio_tri_o_0_reg;  // PS送给PL的通知信号
+    reg [2:0]gpio_tri_o_0_reg;  // PS送给PL的通知信号
     reg ps_bram_wr_done;
     reg pl_bram_wr_done;
     reg bram_en;
@@ -78,20 +79,40 @@ module system_wrapper_BRAM (
     // 存储空间大小 4KB = 32bit * 1024
     localparam BRAM_ADDRESS_HIGH = 32'd4096 - 32'd4;
 
+    // FCLK_CLK0 在bd文件的内部, 可以直接使用
     // 寄存器用来检测 GPIO0 的上升沿
+    // always @(posedge FCLK_CLK0) begin
+    //     if (!aresetn) gpio_tri_o_0_reg <= 1'b0;
+    //     else gpio_tri_o_0_reg <= GPIO_tri_o_0;
+    // end
+
+    // // ps写完一个32bit数据后发出一个GPIO0上升沿给PL
+    // always @(posedge FCLK_CLK0) begin
+    //     if (!aresetn) ps_bram_wr_done <= 1'b0;
+    //     else if ({gpio_tri_o_0_reg, GPIO_tri_o_0} == 2'b01)  //gpio0 rising edge
+    //         ps_bram_wr_done <= 1'b1;
+    //     else ps_bram_wr_done <= 1'b0;
+    // end
+
+    // 使用三级寄存器检测GPIO0上升沿  GPIO0由sdk产生
     always @(posedge FCLK_CLK0) begin
         if (!aresetn) gpio_tri_o_0_reg <= 1'b0;
-        else gpio_tri_o_0_reg <= GPIO_tri_o_0;
+        else gpio_tri_o_0_reg <= {gpio_tri_o_0_reg[1:0], GPIO_tri_o_0};
     end
+    // 上升沿和下降沿判断 脉冲信号, 三级寄存器等两拍确定边沿
+    wire pedge;
+    assign pedge = gpio_tri_o_0_reg[2:1] == 2'b01;
 
     // ps写完一个32bit数据后发出一个GPIO0上升沿给PL
     always @(posedge FCLK_CLK0) begin
         if (!aresetn) ps_bram_wr_done <= 1'b0;
-        else if ({gpio_tri_o_0_reg, GPIO_tri_o_0} == 2'b01)  //gpio0 rising edge
+        else if (pedge)  //gpio0 rising edge
             ps_bram_wr_done <= 1'b1;
         else ps_bram_wr_done <= 1'b0;
     end
 
+    // 核心代码, 状态机 写写画画可以理解
+    // 写状态机一定要知道接口的时序, 根据时序写状态机
     always @(posedge FCLK_CLK0) begin
         if (!aresetn) begin
             bram_we <= 4'd0;
@@ -115,11 +136,12 @@ module system_wrapper_BRAM (
                         bram_addr <= bram_addr;
                     end
                 end
-                1: begin
-                    bram_en <= 1'b0;
+                // 在工程代码力state=1的时设置为了bram_en <= 1'b1; 没任何影响
+                1: begin        // 感觉1这个状态没必要存在
+                    bram_en <= 1'b0;    // ??? 为什么中间要关闭一次使能,感觉没必要关闭
                     state   <= 2;
                 end
-                2: begin
+                2: begin            // BRAM_PORTB_dout应该是根据bram_addr得到的
                     bram_rd_data <= BRAM_PORTB_dout;
                     state <= 3;
                 end

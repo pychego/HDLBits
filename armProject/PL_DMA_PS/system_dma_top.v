@@ -44,7 +44,8 @@ module system_dma_top (
     inout        FIXED_IO_ps_srstb
 );
 
-    reg  [31:0] S_AXIS_tdata;   // 总线上发送的数据
+    // 这几个信号是送入system这个自己设计的模块中的
+    reg  [31:0] S_AXIS_tdata;  // 总线上发送的数据
     reg         S_AXIS_tlast;
     reg         S_AXIS_tvalid;
     wire        FCLK_CLK0;
@@ -52,16 +53,17 @@ module system_dma_top (
     wire        s_axis_aresetn;
     wire [ 3:0] S_AXIS_tkeep;
     wire        S_AXIS_tready;
-    wire [ 0:0] gpio_rtl_tri_o;  // 该信号应该是由main.c控制的
+    wire [ 0:0] gpio_rtl_tri_o;     // 该信号通过PS输出
     wire [ 0:0] peripheral_aresetn;  // 外设低电平复位信号
     reg  [ 1:0] state;
 
 
     // AXI Stream协议
-    assign S_AXIS_tkeep = 4'b1111;
+    assign S_AXIS_tkeep = 4'b1111;  // 发送的32bit数据都有效
     assign s_axis_aclk = FCLK_CLK0;
     assign s_axis_aresetn = peripheral_aresetn;
 
+    // 循环状态机, 因此循环发送数据
     always @(posedge FCLK_CLK0) begin
         if (!peripheral_aresetn) begin
             S_AXIS_tvalid <= 1'b0;
@@ -80,9 +82,10 @@ module system_dma_top (
                     end
                 end
                 1: begin  // 发送过程, 一次发送512个data
-                    if (S_AXIS_tready) begin // 发送的第一个数据是0,不是1
+                    if (S_AXIS_tready) begin  // 发送的第一个数据是0,不是1
                         S_AXIS_tdata <= S_AXIS_tdata + 1'b1;
                         if (S_AXIS_tdata == 16'd510) begin
+                            // 发送的最后一个数据是511, 这里是为了让last与511同步
                             S_AXIS_tlast <= 1'b1;
                             state <= 2;
                         end else begin
@@ -95,12 +98,12 @@ module system_dma_top (
                     end
                 end
                 2: begin  // 发送最后一个数据时已经state=2了
-                    if (!S_AXIS_tready) begin   // 如果此时slave没准备接收
+                    if (!S_AXIS_tready) begin  // 如果此时slave没准备接收
                         S_AXIS_tvalid <= 1'b1;
                         S_AXIS_tlast <= 1'b1;
                         S_AXIS_tdata <= S_AXIS_tdata;
                         state <= 2;
-                    end else begin          // 已经准备好接收了
+                    end else begin  // 已经准备好接收了
                         S_AXIS_tvalid <= 1'b0;
                         S_AXIS_tlast <= 1'b0;
                         S_AXIS_tdata <= 32'd0;

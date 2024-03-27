@@ -21,7 +21,7 @@ module my_BRAM_rd_controller_tb ();
     always #5 clk = ~clk;
 
     initial begin
-        bram_rd_count = 1000;
+        bram_rd_count = 10; // 1000
     end
 
     initial begin

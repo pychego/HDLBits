@@ -5,7 +5,7 @@ module pid_ctrl (
                             input      [ 9:0] param_kp,
                             input      [ 9:0] param_ki,
                             input      [ 9:0] param_kd,
-    (*mark_DEBUG = "TRUE"*) input      [31:0] loc_data_set,
+    (*mark_DEBUG = "TRUE"*) input      [31:0] loc_data_set, // set是设置值,这个是参考波形
     (*mark_DEBUG = "TRUE"*) input      [31:0] loc_data,       //maybe come from ssi
 	
     (*mark_DEBUG = "TRUE"*) output reg [15:0] control_output
@@ -21,6 +21,7 @@ module pid_ctrl (
     wire clk_10kHz_en;
     assign clk_10kHz_en = (cnt == 14'd1);
 
+    // count_10kHz和其他模块的count_10kHz是完全同步的,因为产生方法是一样的
     reg [3:0] count_10kHz;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz <= 4'd0;

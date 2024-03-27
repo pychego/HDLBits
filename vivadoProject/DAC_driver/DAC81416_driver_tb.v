@@ -22,9 +22,9 @@ module DAC81416_driver_tb ();
         rst_n = 1'b0;
         start_init_dac = 1'b0;
         start = 1'b0;
-        # 15 rst_n = 1'b1;
-        # 2000000 start_init_dac = 1'b1;
-        # 2000000 start = 1'b1;
+        #15 rst_n = 1'b1;
+        #2000000 start_init_dac = 1'b1;
+        #2000000 start = 1'b1;
     end
 
     always #5 clk = ~clk;
@@ -38,8 +38,9 @@ module DAC81416_driver_tb ();
         .rom_clk (rom_clk)
     );
 
+
     blk_mem_gen_0 u_blk_mem_gen_0 (
-        .clka (rom_clk),      // input wire clka
+        .clka (rom_clk),      // rom_clk频率10kHz
         .ena  (rom_en),       // input wire ena
         .addra(rom_addr),     // input wire [9 : 0] addra
         .douta(loc_data_set)  // output wire [31 : 0] douta

@@ -1,5 +1,6 @@
 // Initialize the DAC and output the correct control instructions
 // How to ensure control_output and timing coordination
+// 该模块首先进行初始化DAC操作,之后就开始接收control_output,并包装成dac_cmd,传递给DAC81416_spi,进行spi时序的调整
 module DAC81416_cmd_gen (
     input clk,
     input rst_n,
@@ -7,8 +8,8 @@ module DAC81416_cmd_gen (
     (*mark_DEBUG = "TRUE"*) input start,
     (*mark_DEBUG = "TRUE"*) input [15:0] control_output,  // Waiting to write to DAC register
     (*mark_DEBUG = "TRUE"*)
-                            output reg [23:0] dac_cmd,  // the two signals are passed to DAC81416_spi
-    (*mark_DEBUG = "TRUE"*) output reg dac_cmd_valid
+    output reg [23:0] dac_cmd,  // the two signals are passed to DAC81416_spi
+    (*mark_DEBUG = "TRUE"*) output reg dac_cmd_valid    // 声明此时的dac_cmd是有效的
     // mark_DEBUG is a Vivado directive that allows you to see the values of the signals in the simulation
 );
 
@@ -49,6 +50,7 @@ module DAC81416_cmd_gen (
     // test this signal,
     // there is only one clk cycle make clk_10kHz_en high in 0.1ms,
     // count_10kHz_init_dac is used to indicate the time order of DAC initialization
+    // count_10kHz_init_dac
     (*mark_DEBUG = "TRUE"*) reg [15:0] count_10kHz_init_dac;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz_init_dac <= 16'd0;
@@ -128,12 +130,14 @@ module DAC81416_cmd_gen (
                         end
                     endcase
                 end
-            end else begin  
+            end else begin
                 // send start signal only after initialization is completed
                 // if receive start from PS, then enter the normal working phase
                 // count_10kHz from 0 to 9, which is a control cycle and the total time is 1ms
                 // count_10kHz stays every state for 0.1ms
+                // count_10kHz 从0到9,每个状态持续0.1ms,总时间为1ms
                 case (count_10kHz)
+                    // 前面的状态在空等, 这个时候其他模块比如反解可以进行运算
                     4'd8: begin
                         // truth is the follow state stay for most 8 and a clk cycle 9
                         dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, control_output};
