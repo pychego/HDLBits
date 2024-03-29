@@ -66,7 +66,8 @@ module pid_ctrl (
                     control_temp <= param_k0 * err - param_k1 * err_p + param_k2 * err_pp;
                 end
                 4'd7: begin
-                    control_output[14:0] <= ((control_temp[47:20] == 28'h0000000) || (control_temp[47:20] == 28'hfffffff)) ? control_temp[19:5] : control_temp[47]? 15'h0000:15'h7fff;
+                    control_output[14:0] <= ((control_temp[47:20] == 28'h0000000) || (control_temp[47:20] == 28'hfffffff))
+                     ? control_temp[19:5] : control_temp[47]? 15'h0000:15'h7fff;
                     control_output[15] <= ~control_temp[47];
                 end
                 // 4'd8:

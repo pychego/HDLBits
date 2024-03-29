@@ -18,6 +18,7 @@ module SSI_gray_driver_tb ();
     always #5 clk = ~clk;
 
     always @(posedge SSI_clk) begin
+        // $random()生成一个32位随机数，取模2得到0或1
         SSI_data = $random() % 2;
     end
 

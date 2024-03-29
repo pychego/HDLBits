@@ -138,6 +138,7 @@ module DAC81416_cmd_gen (
                 // count_10kHz 从0到9,每个状态持续0.1ms,总时间为1ms
                 case (count_10kHz)
                     // 前面的状态在空等, 这个时候其他模块比如反解可以进行运算
+                    // 因为我要用8个DAC通道,这里要改一下状态机,把8个DAC的数据依次送进去
                     4'd8: begin
                         // truth is the follow state stay for most 8 and a clk cycle 9
                         dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, control_output};

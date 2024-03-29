@@ -48,6 +48,11 @@ module DAC81416_driver_tb ();
 
 
     assign loc_data = 140000;
+    // 设置实际位置loc_data是变化的
+    // always @(posedge clk) begin
+    //     if(!rst_n) loc_data <= 140000;
+    //     else loc_data <= loc_data + 1000;
+    // end
 
 
     pid_ctrl u_pid_ctrl (
