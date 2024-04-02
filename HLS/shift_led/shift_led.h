@@ -13,8 +13,11 @@
 
 #define SHIFT_FLAG MAX_CNT-2
 
-typedef int led_t;
-typedef int cnt32_t;    // 计数器
+// typedef int led_t;
+// typedef int cnt32_t;    // 计数器
+
+typedef ap_fixed<4, 4> led_t;
+typedef ap_fixed<32,32> cnt32_t;
 
 void shift_led(led_t *led_o, led_t led_i);
 
