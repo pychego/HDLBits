@@ -10,6 +10,7 @@ int main(){
     INT_TYPE pose[6] = {82330, -22300, 434500, 31000, 63210, -94300};
     INT_TYPE lengths[6] = {0, 0, 0, 0, 0, 0};
 
+    // 这里传递的lengths就是地址
     inverse(pose, lengths);
     for(int i=0;i<6;i++){
         cout<<lengths[i]<<endl;
