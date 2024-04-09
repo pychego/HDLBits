@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\Applications\\Vivado\\2018.3\\include\\**"
+                "C:\\Applications\\Vivado\\2018.3\\include\\**",
+                "C:\\Applications\\mingw64\\include\\eigen3\\**"
             ],
             "defines": [
                 "_DEBUG",

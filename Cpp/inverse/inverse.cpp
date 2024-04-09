@@ -1,6 +1,5 @@
 #include "inverse.h"
 #include "math.h"
-
 // 输入: 暂时的单位是cm
 // 一定注意, 该模块输入和输出都是实际值的10000倍
 void inverse(INT_TYPE pose[6], INT_TYPE lengths[6])
