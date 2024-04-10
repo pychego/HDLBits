@@ -1,15 +1,34 @@
-#include<iostream>
-#include"math.h"
+#include <iostream>
+#include "math.h"
+#include "Jacobian.cpp"
+#include <Eigen/Dense>
 
 using namespace std;
 
-int main() {
+int main()
+{
     float x = 1.2;
     float y = 2.4;
     float z = 56.6;
     float a = 4.5;
     float b = 5.6;
     float c = 5.4;
-    float J12 =(0.5*fabs((y + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 10.028))*(y + y + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 20.056))/(sqrt((y + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 10.028)*(y + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 10.028))*sqrt(fabs(pow((4.0*sin(0.017453*b) - 1.0*x - 24.233*cos(0.017453*b)*cos(0.017453*c) + 6.9222*cos(0.017453*b)*sin(0.017453*c) + 35.825), 2)) + fabs(pow((z - 4.0*cos(0.017453*a)*cos(0.017453*b) + 6.9222*cos(0.017453*c)*sin(0.017453*a) + 24.233*sin(0.017453*a)*sin(0.017453*c) - 24.233*cos(0.017453*a)*cos(0.017453*c)*sin(0.017453*b) + 6.9222*cos(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) - 4.0), 2)) + fabs(pow((y + 6.9222*cos(0.017453*a)*cos(0.017453*c) + 4.0*cos(0.017453*b)*sin(0.017453*a) + 24.233*cos(0.017453*a)*sin(0.017453*c) + 24.233*cos(0.017453*c)*sin(0.017453*a)*sin(0.017453*b) - 6.9222*sin(0.017453*a)*sin(0.017453*b)*sin(0.017453*c) + 10.028), 2))));   
-    cout << J12 << endl;
+    float J[6][6];
+    float f[6] = {1, 2, 3, 4, 5, 6};
+    Jacobian(x, y, z, a, b, c, J);
+
+    // 将二维数组转化为矩阵
+    // Eigen::RowMajor保证了和原始数组的顺序一致, 不进行转置
+    Eigen::Map<Eigen::Matrix<float, 6, 6, Eigen::RowMajor>> matrix(J[0]);
+
+    Eigen::Map<Eigen::Matrix<float, 6, 1>> f_matrix(f);
+
+    std::cout << "雅可比矩阵 Matrix:\n" << matrix << std::endl;
+
+    std::cout << "雅可比矩阵的逆矩阵 Matrix:\n" << matrix.inverse() << std::endl;
+
+    std::cout << "结果矩阵 Matrix:\n" << matrix.inverse() * f_matrix << std::endl;
+
+
+
 }

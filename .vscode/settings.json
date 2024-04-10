@@ -2,6 +2,7 @@
     "files.associations": {
         "*.tex": "latex",
         "*.h": "c",
+        "*.py": "python",
         "ostream": "cpp",
         "vector": "cpp",
         "iostream": "cpp",
@@ -68,6 +69,7 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "valarray": "cpp"
     }
 }
