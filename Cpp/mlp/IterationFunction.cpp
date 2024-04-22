@@ -3,9 +3,10 @@
 */
 #include "mlp.h"
 #include "math.h"
+#include <Eigen/Dense>
 
 // 输入角度是角度制
-float *IteationFunction(float pose[6], float lengths[6])
+void IterationFunction(Eigen::Matrix<float, 6, 1> pose, float lengths[6], Eigen::Matrix<float, 6, 1>& f)
 {
     // 下 stwart 的参数
     // 定义六个腿的底座坐标(在base坐标系下)
@@ -28,12 +29,12 @@ float *IteationFunction(float pose[6], float lengths[6])
 
     // 定义实际位姿
     float x, y, z, a, b, c;
-    x = pose[0];
-    y = pose[1];
-    z = pose[2];
-    a = pose[3] / 180 * M_PI;
-    b = pose[4] / 180 * M_PI;
-    c = pose[5] / 180 * M_PI;
+    x = pose(0, 0);
+    y = pose(1, 0);
+    z = pose(2, 0);
+    a = pose(3, 0) / 180 * M_PI;
+    b = pose(4, 0) / 180 * M_PI;
+    c = pose(5, 0) / 180 * M_PI;
     // 定义三个旋转矩阵, 这里使用旋转角顺序 x->y->z
     float T[3] = {x, y, z};
 
@@ -104,10 +105,9 @@ float *IteationFunction(float pose[6], float lengths[6])
     }
 
     // 计算f
-    float f[6] = {0};
     for (int i = 0; i < 6; i++)
     {
-        f[i] = pose2lengths[i] - lengths[i];
+        f(i, 0) = pose2lengths[i] - lengths[i];
     }
-    return f;
+
 }

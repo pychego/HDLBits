@@ -7,6 +7,7 @@ using namespace std;
 
 int main(){
     COS_SIN_TYPE s, c;
+    // 输入测试的角度 单位为度
     THETA_TYPE theta = 66;
     cordic(theta, &s, &c);
     // 输出结果与math.h中的sin和cos函数的结果进行比较

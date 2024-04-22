@@ -1,5 +1,5 @@
 // The file cordic.h holds definitions for the data types and constant valuse
-
+// 后面还可以进行定点数优化, 这里使用的是浮点数
 #include "cordic.h"
 #include <iostream>
 using namespace std;
@@ -12,8 +12,8 @@ void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c)
 {
     // Set the initial vector that we will rotate
     // current_cos = I;current = Q
-    COS_SIN_TYPE current_cos =0.60725;
-;
+    COS_SIN_TYPE current_cos = 0.60725;
+    ;
     COS_SIN_TYPE current_sin = 0;
 
     // Factor is the 2^(-L) value
@@ -25,7 +25,7 @@ void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c)
     {
         // Determine if we are rotating by a positive or negative angle
         int sigma = (theta < 0) ? -1 : 1;
-        
+
         // Save the current_cos,so that it can be used in the sine calculation
         COS_SIN_TYPE temp_cos = current_cos;
 
