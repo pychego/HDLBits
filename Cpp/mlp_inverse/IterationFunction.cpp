@@ -3,6 +3,7 @@
 */
 #include "mlp.h"
 #include "math.h"
+#include "cordic.cpp"
 
 // 输入角度是角度制
 void IterationFunction(float pose[6], float lengths[6], float f[6])
@@ -31,27 +32,40 @@ void IterationFunction(float pose[6], float lengths[6], float f[6])
     x = pose[0];
     y = pose[1];
     z = pose[2];
-    a = pose[3] / 180 * M_PI;
-    b = pose[4] / 180 * M_PI;
-    c = pose[5] / 180 * M_PI;
+    a = pose[3];
+    b = pose[4];
+    c = pose[5];
+
+    // COS_SIN_TYPE sina, sinb, sinc, cosa, cosb, cosc;
+
+    // cordic(a, &sina, &cosa);
+    // cordic(b, &sinb, &cosb);
+    // cordic(c, &sinc, &cosc);
+    float sina, sinb, sinc, cosa, cosb, cosc;
+    sina = sin(a * DEG2RAD);
+    sinb = sin(b * DEG2RAD);
+    sinc = sin(c * DEG2RAD);
+    cosa = cos(a * DEG2RAD);
+    cosb = cos(b * DEG2RAD);
+    cosc = cos(c * DEG2RAD);
     // 定义三个旋转矩阵, 这里使用旋转角顺序 x->y->z
     float T[3] = {x, y, z};
 
     RTYPE Rx[3][3] = {
         {1, 0, 0},
-        {0, cos(a), -sin(a)},
-        {0, sin(a), cos(a)},
+        {0, cosa, -sina},
+        {0, sina, cosa},
     };
 
     RTYPE Ry[3][3] = {
-        {cos(b), 0, sin(b)},
+        {cosb, 0, sinb},
         {0, 1, 0},
-        {-sin(b), 0, cos(b)},
+        {-sinb, 0, cosb},
     };
 
     RTYPE Rz[3][3] = {
-        {cos(c), -sin(c), 0},
-        {sin(c), cos(c), 0},
+        {cosc, -sinc, 0},
+        {sinc, cosc, 0},
         {0, 0, 1},
     };
 
@@ -108,5 +122,4 @@ void IterationFunction(float pose[6], float lengths[6], float f[6])
     {
         f[i] = pose2lengths[i] - lengths[i];
     }
-
 }

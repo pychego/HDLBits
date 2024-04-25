@@ -8,12 +8,19 @@
 
 int main()
 {
+    // 判断是否迭代成功
     int flag = 0;
+    // 约定的迭代精度
     float eps = 0.001;
 
-    // 测试代码时应该将lengths和pose一起改, pose是迭代的初始值
-    float lengths[6] = {56.2754, 56.078, 55.0039, 60.4973,59.2254, 52.8107};
-    float pose[6] = {8.582, 3.029, 59.73, 0.7555, 3.193, 0.9335};
+    // 测试代码时应该将lengths和pose一起改, lengths是正解输入的腿长, pose是迭代的初始值
+    // float lengths[6] = {56.2754, 56.078, 55.0039, 60.4973,59.2254, 52.8107};
+    // float pose[6] = {8.582, 3.029, 59.73, 0.7555, 3.193, 0.9335};
+
+    float lengths[6] = {58.4536, 50.3413, 52.2402, 50.1538, 48.7386, 54.2602};
+    // 此时实际位姿  {-8.3, 5.2, 55.2, 2.18, -3.6, 5.212}
+    float pose[6] = {-8.164, 5.178, 55.28, 2.158, -3.416, 5.127};
+
 
     // float lengths[6] = {57.8268, 49.9773, 52.1388, 50.1579, 48.6781, 53.9514};
     // float pose[6] = {-7.881, 4.983, 55.06, 1.977, -2.859, 4.925};
@@ -34,7 +41,6 @@ int main()
         float error_abs[6];
         float error_max = 0;
         
-
         IterationFunction(pose, lengths, f);
         Jacobian_cordic(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
         inverseMatrix(df, df_inv);

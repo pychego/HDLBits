@@ -3,9 +3,10 @@
 
 #define N 6
 
+// CORDIC求解正余弦的迭代次数
 #define NUM_ITERATIONS 15
 
-#define DEG2RAD 0.017453
+#define DEG2RAD 0.01745329
 
 #define RAD2DEG 57.2958
 
@@ -27,8 +28,10 @@ void IterationFunction(float pose[6], float lengths[6], float f[6]);
 
 void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c);
 
+// 未定义
 void Jacobian(float x, float y, float z, float a, float b, float c, float J[6][6]);
 
+// 使用的是这个
 void Jacobian_cordic(float x, float y, float z, float a, float b, float c, float J[6][6]);
 
 void luDecomposition(float mat[N][N], float lower[N][N], float upper[N][N], int pivot[N]);

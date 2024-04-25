@@ -5,6 +5,6 @@
 typedef float THETA_TYPE;
 typedef float COS_SIN_TYPE;
 // 宏定义后面不要加分号
-#define NUM_ITERATIONS  15
+#define NUM_ITERATIONS  26
 
 #endif

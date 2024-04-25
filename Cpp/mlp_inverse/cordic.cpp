@@ -1,6 +1,5 @@
 // The file cordic.h holds definitions for the data types and constant valuse
-
-#include "cordic.h"
+#include"mlp.h"
 #include <iostream>
 using namespace std;
 // The cordic_phase array holds the angle for the current rotation

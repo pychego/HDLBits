@@ -1,6 +1,6 @@
 // The file cordic.h holds definitions for the data types and constant valuse
 // 后面还可以进行定点数优化, 这里使用的是浮点数
-#include "cordic.h"
+#include "TruePlatform2base.h"
 #include <iostream>
 using namespace std;
 // The cordic_phase array holds the angle for the current rotation
