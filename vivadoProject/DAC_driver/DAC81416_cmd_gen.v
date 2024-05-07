@@ -1,11 +1,14 @@
 // Initialize the DAC and output the correct control instructions
 // How to ensure control_output and timing coordination
 // 该模块首先进行初始化DAC操作,之后就开始接收control_output,并包装成dac_cmd,传递给DAC81416_spi,进行spi时序的调整
+// start 是整个系统的开始信号, start_init_dac 是初始化DAC的信号 都是电平信号
+// 高论文中有,当接收到来自PS端的start_init_dac信号时，进入初始化阶段，并用 nit_done_flag 
+// 信号指示初始化的完成与否，初始化完成并接收到来自PS端的start信号时才会进入正常工作阶段。 
 module DAC81416_cmd_gen (
     input clk,
     input rst_n,
-    (*mark_DEBUG = "TRUE"*) input start_init_dac,  // come from PS
-    (*mark_DEBUG = "TRUE"*) input start,
+    (*mark_DEBUG = "TRUE"*) input start_init_dac,  
+    (*mark_DEBUG = "TRUE"*) input start,      // start 和 start_init_dac 都来自GPIO
     (*mark_DEBUG = "TRUE"*) input [15:0] control_output,  // Waiting to write to DAC register
     (*mark_DEBUG = "TRUE"*)
     output reg [23:0] dac_cmd,  // the two signals are passed to DAC81416_spi
@@ -16,14 +19,14 @@ module DAC81416_cmd_gen (
 
     // localparam is used to define constants, which can not be passed as parameters to other modules
     // the address comes from the datasheet technical manual of DAC81416
-    localparam SPICONFIG_REG_ADDR = 6'b000011;
-    localparam GENCONFIG_REG_ADDR = 6'b000100;
-    localparam DACPWDWN_REG_ADDR = 6'b001001;
-    localparam DACRANGE0_REG_ADDR = 6'b001010;
-    localparam DACRANGE1_REG_ADDR = 6'b001011;
-    localparam DACRANGE2_REG_ADDR = 6'b001100;
-    localparam DACRANGE3_REG_ADDR = 6'b001101;
-    localparam DAC0_DATA_REG_ADDR = 6'b010000;
+    localparam SPICONFIG_REG_ADDR = 6'b000011;      // offset   3h
+    localparam GENCONFIG_REG_ADDR = 6'b000100;      // 4h
+    localparam DACPWDWN_REG_ADDR = 6'b001001;       // 9h
+    localparam DACRANGE0_REG_ADDR = 6'b001010;      // Ah
+    localparam DACRANGE1_REG_ADDR = 6'b001011;      // Bh
+    localparam DACRANGE2_REG_ADDR = 6'b001100;      // Ch
+    localparam DACRANGE3_REG_ADDR = 6'b001101;      // Dh
+    localparam DAC0_DATA_REG_ADDR = 6'b010000;      // 10h
 
     // this is a counter from 0 to 9999, which is used to generate a 10kHz clock
     reg [13:0] cnt;
@@ -62,6 +65,8 @@ module DAC81416_cmd_gen (
     end
 
     // this code can make sure initialization only once
+    // 初始化一次之后,init_done_flag置 1
+    // 回头看DAC81416的手册, 好像是dac_cmd_valid不能连续, 发送一次就要停止一次
     (*mark_DEBUG = "TRUE"*) reg init_done_flag = 1'b0;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -72,7 +77,7 @@ module DAC81416_cmd_gen (
             if (!start) begin  // if no start signal and no init, then begin to initialization
                 if (!init_done_flag) begin  // if initialization is not done, do initialization
                     case (count_10kHz_init_dac)
-                        // 16'd0:
+                        // 16'd0: 因为默认就是在state=0,所以这个状态不能用
                         16'd1: begin
                             dac_cmd <= {1'b0, 1'b0, SPICONFIG_REG_ADDR, 16'h0A84};
                             dac_cmd_valid <= 1'b1;

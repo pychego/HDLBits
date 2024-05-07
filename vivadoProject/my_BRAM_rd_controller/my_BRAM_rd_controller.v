@@ -22,7 +22,7 @@ module my_BRAM_rd_controller (
     assign clk_10kHz_en = (cnt == 14'd1);
 
     // assign bram_clk = clk_10kHz_en;
-    // The cycle of bram_clk is 0.1ms
+    // The cycle of bram_clk is 0.1ms  (10KHz)
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) bram_clk <= 4'd0;
         else if (cnt == 14'd1) bram_clk <= 1'b1;

@@ -1,15 +1,15 @@
 // what is the position of this module in the entire design?
 module SSI_gray_driver (
-                            input clk,
-                            input rst_n,
+    input clk,
+    input rst_n,
     (*mark_DEBUG = "TRUE"*) input SSI_data,            // 传感器差分信号经MAX3077变为单端信号，给zynq
 
-    (*mark_DEBUG = "TRUE"*) output reg        SSI_clk, // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     [24:0] loc_data // 25bit
+    (*mark_DEBUG = "TRUE"*) output reg        SSI_clk,  // output to sensor
+    (*mark_DEBUG = "TRUE"*) output     [24:0] loc_data  // 25bit
 );
-// 根据SSI时序可知，SSI_clk每来一个上升沿传感器就送入一个SSI_data 因此要设计在SSI_clk下降沿读取SSI_data
+    // 根据SSI时序可知，SSI_clk每来一个上升沿传感器就送入一个SSI_data 因此要设计在SSI_clk下降沿读取SSI_data
 
-    // 1MHz
+    // 根据cnt计数设计1MHz信号
     reg [7:0] cnt;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) cnt <= 8'd0;
@@ -54,7 +54,6 @@ module SSI_gray_driver (
         end
     end
 
-
     // 25 SSI_clk neg edge
     (*mark_DEBUG = "TRUE"*) reg [7:0] count_SSIclk;
     always @(negedge SSI_clk or negedge rst_n) begin
@@ -66,12 +65,13 @@ module SSI_gray_driver (
     (*mark_DEBUG = "TRUE"*)reg [24:0] data_buffer;
     (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data_gray;
     // SSI_data in the negedge od SSI_clk is stable
-    // 注意，这里是在SSI_clk的下降沿读取SSI_data
+    // 在SSI_clk的下降沿读取SSI_data, 实际综合时用SSI_clk下降沿作为触发信号合适吗
     always @(negedge SSI_clk or negedge rst_n) begin
         if (!rst_n) begin
             loc_data_gray <= 25'd0;
             data_buffer   <= 25'd0;
         end else if (SSI_flag) begin
+            // 新来的放到最低位，旧的左移一位
             data_buffer <= {data_buffer[23:0], SSI_data};
         end else if (count_SSIclk == 8'd25) begin
             // time is count_SSIclk from 25 to 0
@@ -90,7 +90,7 @@ module SSI_gray_driver (
         if (!rst_n) i <= 5'd0;
         else begin
             i <= i + 1'b1;
-            case (i)                    // gray格雷码 to binary principle
+            case (i)  // gray格雷码 to binary principle
                 // Force Serial 其实是强制转换为串行操作了，
                 // 看仿真知道高的代码loc_data_binary_r也有暂态， 原因是在下面的转换过程中loc_data_gray也可能会变化
                 5'd0: begin
@@ -139,11 +139,12 @@ module SSI_gray_driver (
 
 endmodule
 /*
-此为格雷码传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data 但我需要直到这25位代表的实际位移是多少
+此为格雷码传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data 但我需要知道这25位代表的实际位移是多少
 
 我改动的部分，在case刚进入0的时候，保存下来loc_data_gray为loc_data_gray_r，在case的0-25这一轮，loc_data_gray_r
 保持不变，这样可保证loc_data_binary_r不会出现不稳定的暂态
 
-通过时序图可知loc_data大概73us更新一次，1ms内更新13次，完全够用的
+通过时序图可知 loc_data 大概73us更新一次，1ms内更新13次，完全够用的; loc_data虽然一直在变, 但是根据BRAM_wr_controller
+的时序要求, 是从bram_we=1的期间写入该时刻的 loc_data
 */
 

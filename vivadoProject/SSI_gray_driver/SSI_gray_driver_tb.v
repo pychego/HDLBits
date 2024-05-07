@@ -31,7 +31,7 @@ module SSI_gray_driver_tb ();
         .rst_n   (rst_n),
         .SSI_data(SSI_data),
         .SSI_clk (SSI_clk),     // output to sensor
-        .loc_data(loc_data)
+        .loc_data(loc_data)     // output
     );
 
 endmodule

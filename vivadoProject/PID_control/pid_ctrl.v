@@ -34,7 +34,7 @@ module pid_ctrl (
     (*Mark_debug = "TRUE"*)wire signed [31:0] param_k1;
     (*Mark_debug = "TRUE"*)wire signed [31:0] param_k2;
 
-    // ??
+    // 看论文公式(4-4)和(4-6)
     assign param_k0 = param_kp + param_ki + param_kd;
     assign param_k1 = param_kp + 2 * param_kd;
     assign param_k2 = param_kd;
@@ -43,9 +43,9 @@ module pid_ctrl (
     (*mark_DEBUG = "TRUE"*) reg signed [31:0] err = 0, err_p = 0, err_pp = 0;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            err_pp <= 0;
-            err_p <= 0;
-            err <= 0;
+            err_pp <= 0;    // 存放e(k-2)
+            err_p <= 0;     // 存放e(k-1)
+            err <= 0;       // 存放e(k)
             control_temp <= 0;
             control_output <= 0;
         end else if (clk_10kHz_en) begin
@@ -71,6 +71,11 @@ module pid_ctrl (
                     // can not understand why to select control_temp[32:18] ?
                     control_output[14:0] <= ((control_temp[63:33] == {31{1'b0}}) || (control_temp[63:33] == {31{1'b1}})) ?
                                             control_temp[32:18] : control_temp[63]? 15'h0000:15'h7fff;
+                    // 最高位取反其实是有符号数和无符号数之间的转换
+                    // 假设control_temp是一个很负的负数, 不满足第一个判断条件, 满足control_temp[63] == 1
+                    // 此时control_output[14:0]<=15'h0000
+                    // control_output[15] <= 0;
+                    // 组合在一起control_output=0, 输入到DAC,电压就是-10V
                     control_output[15] <= ~control_temp[63];
                 end
                 // 4'd8:

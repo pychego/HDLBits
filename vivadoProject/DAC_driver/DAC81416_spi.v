@@ -5,11 +5,11 @@ module DAC81416_spi (
                             input      [23:0] dac_cmd,
                             input             dac_cmd_valid,
     (*mark_DEBUG = "TRUE"*) output reg        DAC_CSn,
-    (*mark_DEBUG = "TRUE"*) output reg        DAC_SCLK,
+    (*mark_DEBUG = "TRUE"*) output reg        DAC_SCLK,     // 25MHz
     (*mark_DEBUG = "TRUE"*) output reg        DAC_SDI
 );
 
-    // cnt_div is two divided-frequency
+    // cnt_div is two divided-frequency 二分频 50Mhz
     reg [3:0] cnt_div;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) cnt_div <= 4'd0;
@@ -24,7 +24,7 @@ module DAC81416_spi (
         else DAC_SCLK <= DAC_SCLK;
     end
 
-    // dac_cmd_valid是和控制信号一起出现的,因此dac_cmd_valid每次持续时间达到0.1ms
+    // dac_cmd_valid 是和控制信号一起出现的,因此dac_cmd_valid每次持续时间达到0.1ms
     reg [13:0] cnt;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) cnt <= 14'd0;
@@ -40,6 +40,7 @@ module DAC81416_spi (
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) DAC_CSn <= 1'b1;
         // cnt[1:0] is low positions
+        // cnt[1:0] == 2'b11 再来一个clk就计数一次 DAC_SCLK
         else if (cnt[1:0] == 2'b11) begin
             if (dac_cmd_valid) begin
                 if (cnt_SCLK <= 5)  
@@ -47,6 +48,7 @@ module DAC81416_spi (
                     DAC_CSn <= 1'b1;
                 else if (cnt_SCLK <= 29) DAC_CSn <= 1'b0;   //  ???
                 // CSn low keeps 960ns,SCLK cycle is 40ns, so 24 cycles
+                // 1000ns=1us=0.001ms
                 else DAC_CSn <= 1'b1;
             end else DAC_CSn <= 1'b1;
         end
@@ -58,7 +60,7 @@ module DAC81416_spi (
         else if (cnt[1:0] == 2'b11) begin
             if (dac_cmd_valid) begin
                 if (cnt_SCLK <= 5) dac_cmd_shift <= dac_cmd;
-                else if (cnt_SCLK <= 29) dac_cmd_shift <= dac_cmd_shift << 1;
+                else if (cnt_SCLK <= 29) dac_cmd_shift <= (dac_cmd_shift << 1);
                 else dac_cmd_shift <= dac_cmd_shift;
             end else dac_cmd_shift <= 24'd0;
         end
@@ -70,6 +72,7 @@ module DAC81416_spi (
             if (dac_cmd_valid) begin
                 if (cnt_SCLK <= 5) DAC_SDI <= 1'b0;
                 // The shift operation was performed in the previous always statement
+                // 先传输高位,后传输低位
                 else if (cnt_SCLK <= 29) DAC_SDI <= dac_cmd_shift[23];
                 else DAC_SDI <= 1'b0;
             end else DAC_SDI <= 1'b0;

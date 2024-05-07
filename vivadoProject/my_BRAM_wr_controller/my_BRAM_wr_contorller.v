@@ -5,7 +5,7 @@ module my_BRAM_wr_controller (
     input        clk,
     input        rst_n,
     input        start,
-    input [31:0] bram_count,
+    input [31:0] bram_count,        // 参数分发模块确定的数据量
 
     (*mark_DEBUG = "TRUE"*) output reg        bram_en,
     (*mark_DEBUG = "TRUE"*) output reg [ 3:0] bram_we,      // 4 bits width, write enable
@@ -90,3 +90,6 @@ module my_BRAM_wr_controller (
     end
 
 endmodule
+
+// 最后使用乒乓操作感觉必要性不大,
+// 存放实际位移的BRAM, 每个控制周期存放一个实际位移
