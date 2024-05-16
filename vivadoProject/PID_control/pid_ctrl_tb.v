@@ -6,8 +6,8 @@ module pid_ctrl_tb ();
     reg         rst_n;
     reg         start;
     reg  [31:0] param_kp = 131072;
-    reg         param_ki = 0;
-    reg         param_kd = 0;
+    reg  [31:0] param_ki = 0;
+    reg  [31:0] param_kd = 0;
     wire [31:0] data_target;
     wire [31:0] data_real;
     wire [15:0] control_output;
@@ -43,7 +43,7 @@ module pid_ctrl_tb ();
     end
 
     // One round of count_10kHz is 1ms, which is a control cycle
-    reg [3:0]count_10kHz; 
+    reg [3:0] count_10kHz;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz <= 4'd0;
         else if (clk_10kHz_en) begin
@@ -82,7 +82,6 @@ module pid_ctrl_tb ();
         .clka (rom_clk),     // input wire clka
         .ena  (rom_en),      // input wire ena
         .addra(rom_addr),    // input wire [9 : 0] addra
-
         .douta(data_target)  // output wire [31 : 0] douta
     );
 

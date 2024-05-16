@@ -24,7 +24,7 @@ module my_BRAM_wr_controller (
     wire clk_10kHz_en;
     assign clk_10kHz_en = (cnt == 14'd1);
 
-    // bram_clk 10KHz
+    // bram_clk 10KHz 周期为 100us, 这个没什么硬性要求
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) bram_clk <= 4'd0;
         else if (cnt == 14'd1) bram_clk <= 1'b1;
@@ -60,6 +60,7 @@ module my_BRAM_wr_controller (
                 4'd5: begin
                     bram_en <= 1'b0;
                     // ?? why bram_count << 3
+                    // bram_count*2 地址的数量
                     if (bram_addr >= (bram_count << 3) - 32'd4) bram_addr <= 32'd0;
                     else bram_addr <= bram_addr + 32'd4;
                 end
