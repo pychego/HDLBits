@@ -81,11 +81,8 @@ module SSI_binary_driver (
             data_buffer   <= 25'd0;
         end
     end
-
     assign loc_data = loc_data_gray;
-
     // 需不需要设置复位？ 感觉不需要
-
 endmodule
 /*
 此为格雷码传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data 但我需要知道这25位代表的实际位移是多少
