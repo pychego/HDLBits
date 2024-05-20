@@ -1,5 +1,5 @@
 // convert parallel dac_cmd to spi serial data
-module DAC81416_spi (
+module Four_DAC81416_spi (
                             input             clk,
                             input             rst_n,
                             input      [23:0] dac_cmd,
@@ -103,7 +103,4 @@ endmodule
     count_10kHz=7  : 计算出了PID控制的输出电压control_output[15:0]
     count_10kHz=8  : control_output[15:0]包装成dac_cmd[23:0],dac_cmd_valid=1持续0.1ms
                     在此期间完成了spi协议,将并行数据转换成串行数据送入了DAC81416,其输出控制电压
-
-
-
 */
