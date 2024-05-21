@@ -5,28 +5,37 @@
 // 高的论文中有,当接收到来自PS端的start_init_dac信号时，进入初始化阶段，并用 init_done_flag 
 // 信号指示初始化的完成与否，初始化完成并接收到来自PS端的start信号时才会进入正常工作阶段。 
 module DAC81416_cmd_gen (
-    input clk,
-    input rst_n,
-    (*mark_DEBUG = "TRUE"*) input start_init_dac,  
-    (*mark_DEBUG = "TRUE"*) input start,      // start 和 start_init_dac 都来自GPIO
-    (*mark_DEBUG = "TRUE"*) input [15:0] control_output,  // Waiting to write to DAC register
-    (*mark_DEBUG = "TRUE"*)
-    output reg [23:0] dac_cmd,  // the two signals are passed to DAC81416_spi
-    (*mark_DEBUG = "TRUE"*) output reg dac_cmd_valid    // 声明此时的dac_cmd是有效的
-    // mark_DEBUG is a Vivado directive that allows you to see the values of the signals in the simulation
+    input        clk,
+    input        rst_n,
+    input        start_init_dac,
+    input        start,            // start 和 start_init_dac 都来自GPIO
+    input [15:0] control_output0,  // Waiting to write to DAC register
+    input [15:0] control_output1,
+    input [15:0] control_output2,
+    input [15:0] control_output3,
+
+    output reg [23:0] dac_cmd,        // the two signals are passed to DAC81416_spi
+    output reg        dac_cmd_valid,  // 声明此时的dac_cmd是有效的
+    output reg        LDACn
 );
 
 
     // localparam is used to define constants, which can not be passed as parameters to other modules
     // the address comes from the datasheet technical manual of DAC81416
-    localparam SPICONFIG_REG_ADDR = 6'b000011;      // offset   3h
-    localparam GENCONFIG_REG_ADDR = 6'b000100;      // 4h
-    localparam DACPWDWN_REG_ADDR = 6'b001001;       // 9h
-    localparam DACRANGE0_REG_ADDR = 6'b001010;      // Ah
-    localparam DACRANGE1_REG_ADDR = 6'b001011;      // Bh
-    localparam DACRANGE2_REG_ADDR = 6'b001100;      // Ch
-    localparam DACRANGE3_REG_ADDR = 6'b001101;      // Dh
-    localparam DAC0_DATA_REG_ADDR = 6'b010000;      // 10h
+    localparam SPICONFIG_REG_ADDR = 6'b000011;  // offset   3h
+    localparam GENCONFIG_REG_ADDR = 6'b000100;  // 4h
+    localparam SYNCCONFIG_REG_ADDR = 6'b000110;  // 06h
+    localparam DACPWDWN_REG_ADDR = 6'b001001;  // 9h
+    localparam DACRANGE0_REG_ADDR = 6'b001010;  // Ah
+    localparam DACRANGE1_REG_ADDR = 6'b001011;  // Bh
+    localparam DACRANGE2_REG_ADDR = 6'b001100;  // Ch
+    localparam DACRANGE3_REG_ADDR = 6'b001101;  // Dh
+    localparam DAC0_DATA_REG_ADDR = 6'b010000;  // 10h
+    localparam DAC1_DATA_REG_ADDR = 6'b010001;  // 11h
+    localparam DAC2_DATA_REG_ADDR = 6'b010010;  // 12h
+    localparam DAC3_DATA_REG_ADDR = 6'b010011;  // 13h
+
+
 
     // this is a counter from 0 to 9999, which is used to generate a 10kHz clock
     reg [13:0] cnt;
@@ -48,6 +57,27 @@ module DAC81416_cmd_gen (
             if (count_10kHz == 4'd10 - 1) count_10kHz <= 4'd0;
             else count_10kHz <= count_10kHz + 1'b1;
         end
+    end
+
+    reg [13:0] cnt_spi;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) cnt_spi <= 14'd0;
+        // 每个dac_cmd_valid持续500个clk
+        else if (cnt_spi == 14'd499) cnt_spi <= 14'd0;
+        else cnt_spi <= cnt_spi + 1'b1;
+    end
+
+    wire clk_spi_en;
+    assign clk_spi_en = (cnt_spi == 14'd1);
+
+
+    reg [13:0] state_for_spi;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) state_for_spi <= 4'd0;
+        else if (clk_spi_en && count_10kHz == 8) begin
+            // state_for_spi应该是在count_10Khz中从0~19左右
+            state_for_spi <= state_for_spi + 1'b1;
+        end else if (count_10kHz != 8) state_for_spi <= 4'd0;
     end
 
     // test this signal,
@@ -93,16 +123,13 @@ module DAC81416_cmd_gen (
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd5: begin
-                            // dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
-                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFFE};
+                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFF0};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd6: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd7: begin
-                            // dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFFE};
-                            // dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
                             dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
                             dac_cmd_valid <= 1'b1;
                         end
@@ -130,31 +157,75 @@ module DAC81416_cmd_gen (
                         16'd14: begin
                             dac_cmd_valid <= 1'b0;
                         end
+                        16'd15: begin
+                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'hFFFF};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        16'd16: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
                         16'd20: begin
-                            init_done_flag <= 1'b1;  // initialization is done
+                            init_done_flag <= 1'b1;         // initialization is done
                         end
                     endcase
                 end
             end else begin
                 // send start signal only after initialization is completed
                 // if receive start from PS, then enter the normal working phase
-                // count_10kHz from 0 to 9, which is a control cycle and the total time is 1ms
-                // count_10kHz stays every state for 0.1ms
                 // count_10kHz 从0到9,每个状态持续0.1ms,总时间为1ms
                 case (count_10kHz)
-                    // 前面的状态在空等, 这个时候其他模块比如反解可以进行运算
-                    // 因为我要用8个DAC通道,这里要改一下状态机,把8个DAC的数据依次送进去
-                    4'd8: begin
-                        // truth is the follow state stay for most 8 and a clk cycle 9
-                        dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, control_output};
-                        dac_cmd_valid <= 1'b1;
+                    // 目前设置在count_10kHz=8时,开始发送dac_cmd, 此状态下state_for_spi大概0~19
+                    // 每个状态持续500个clk, 最后在state_for_spi=18时设置LDACn=0进行同步更新
+                    8: begin
+                        case (state_for_spi)
+                            1: begin
+                                dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, control_output0};
+                                dac_cmd_valid <= 1'b1;
+                            end
+                            2: begin
+                                dac_cmd_valid <= 1'b0;
+                            end
+                            3: begin
+                                dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, control_output1};
+                                dac_cmd_valid <= 1'b1;
+                            end
+                            4: begin
+                                dac_cmd_valid <= 1'b0;
+                            end
+                            5: begin
+                                dac_cmd <= {1'b0, 1'b0, DAC2_DATA_REG_ADDR, control_output2};
+                                dac_cmd_valid <= 1'b1;
+                            end
+                            6: begin
+                                dac_cmd_valid <= 1'b0;
+                            end
+                            7: begin
+                                dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, control_output3};
+                                dac_cmd_valid <= 1'b1;
+                            end
+                            8: begin
+                                dac_cmd_valid <= 1'b0;
+                            end
+                        endcase
                     end
-                    4'd9: begin
-                        dac_cmd_valid <= 1'b0;
+                    default: begin
+                        dac_cmd <= 0;
+                        dac_cmd_valid <= 0;
                     end
                 endcase
             end
         end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) LDACn <= 1'b1;
+        else
+            case (state_for_spi)
+                18: begin
+                    LDACn <= 1'b0;
+                end
+                default: LDACn <= 1'b1;
+            endcase
     end
 
 endmodule
