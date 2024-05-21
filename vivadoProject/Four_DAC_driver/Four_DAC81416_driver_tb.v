@@ -15,7 +15,6 @@ module Four_DAC81416_driver_tb ();
     wire [31:0] loc_data_set;
     wire [31:0] loc_data;
     reg [9:0] param_kp = 10, param_ki = 0, param_kd = 0;
-    wire LDACn;
 
     initial begin
         clk = 1'b0;
@@ -78,8 +77,7 @@ module Four_DAC81416_driver_tb ();
         .control_output3(control_output0),
         .DAC_CSn       (DAC_CSn),
         .DAC_SCLK      (DAC_SCLK),
-        .DAC_SDI       (DAC_SDI),
-        .LDACn         (LDACn)
+        .DAC_SDI       (DAC_SDI)
     );
 
     initial begin

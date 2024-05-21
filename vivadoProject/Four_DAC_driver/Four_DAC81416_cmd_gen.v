@@ -16,11 +16,11 @@ module Four_DAC81416_cmd_gen (
 
     output reg [23:0] dac_cmd,
     output reg dac_cmd_valid,      // 声明此时的dac_cmd是有效的
-    output reg LDACn
+    output  LDACn
     // mark_DEBUG is a Vivado directive that allows you to see the values of the signals in the simulation
 );
 
-
+    assign LDACn = 1'b1;
     // localparam is used to define constants, which can not be passed as parameters to other modules
     // the address comes from the datasheet technical manual of DAC81416
     localparam SPICONFIG_REG_ADDR = 6'h000011;  // offset   3h
@@ -158,15 +158,15 @@ module Four_DAC81416_cmd_gen (
                         16'd14: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        16'd15: begin
-                            // 设置DAC81416四个端口同时输出, 需要受LDACn信号控制
-                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'hFFFF};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd16: begin
-                            dac_cmd <= 0;
-                            dac_cmd_valid <= 1'b0;
-                        end
+                        // 16'd15: begin
+                        //     // 设置DAC81416四个端口同时输出, 需要受LDACn信号控制
+                        //     dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'hFFFF};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 16'd16: begin
+                        //     dac_cmd <= 0;
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
                         16'd20: begin
                             init_done_flag <= 1'b1;  // initialization is done
                         end
@@ -223,15 +223,15 @@ module Four_DAC81416_cmd_gen (
         end
     end
 
-    // 同步输出控制信号 LDACn 低电平有效
-    always @(posedge clk or rst_n) begin
-        if(!rst_n) LDACn <= 1'b1;
-        else begin
-            case (count_10kHz)
-               9 : LDACn <= 1'b0;
-                default: LDACn <= 1'b1;
-            endcase
-        end
-    end
+    // // 同步输出控制信号 LDACn 低电平有效
+    // always @(posedge clk or negedge rst_n) begin
+    //     if(!rst_n) LDACn <= 1'b1;
+    //     else begin
+    //         case (count_10kHz)
+    //            9 : LDACn <= 1'b0;
+    //             default: LDACn <= 1'b1;
+    //         endcase
+    //     end
+    // end
 
 endmodule

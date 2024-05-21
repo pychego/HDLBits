@@ -7,14 +7,14 @@ module Four_DAC81416_driver (
     input  [15:0] control_output1,
     input  [15:0] control_output2,
     input  [15:0] control_output3,
-    
+
     output        DAC_CSn,
     output        DAC_SCLK,
-    output        DAC_SDI,
-    output        LDACn
+    output        DAC_SDI
 );
 
     wire [23:0] dac_cmd;
+    wire LDACn;
 
     Four_DAC81416_cmd_gen u_DAC81416_cmd_gen (
         .clk            (clk),

@@ -3,22 +3,32 @@ module DAC81416_driver (
     input         rst_n,
     input         start_init_dac,
     input         start,
-    input  [15:0] control_output,
+    input  [15:0] control_output0,
+    input  [15:0] control_output1,
+    input  [15:0] control_output2,
+    input  [15:0] control_output3,
+
     output        DAC_CSn,
     output        DAC_SCLK,
-    output        DAC_SDI
+    output        DAC_SDI,
+    output        LDACn
 );
 
     wire [23:0] dac_cmd;
+    wire        dac_cmd_valid;
 
     DAC81416_cmd_gen u_DAC81416_cmd_gen (
-        .clk           (clk),
-        .rst_n         (rst_n),
-        .start_init_dac(start_init_dac),
-        .start         (start),
-        .control_output(control_output),
-        .dac_cmd       (dac_cmd),
-        .dac_cmd_valid (dac_cmd_valid)
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .start_init_dac (start_init_dac),
+        .start          (start),
+        .control_output0(control_output0),
+        .control_output1(control_output1),
+        .control_output2(control_output2),
+        .control_output3(control_output3),
+        .dac_cmd        (dac_cmd),      // output
+        .dac_cmd_valid  (dac_cmd_valid),
+        .LDACn          (LDACn)
     );
 
     DAC81416_spi u_DAC81416_spi (

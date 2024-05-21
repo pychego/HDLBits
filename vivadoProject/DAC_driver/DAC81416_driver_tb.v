@@ -6,7 +6,7 @@ module DAC81416_driver_tb ();
     reg         rst_n;
     reg         start_init_dac;
     reg         start;
-    wire [15:0] control_output;
+    wire [15:0] control_output0;
     wire DAC_CSn, DAC_SCLK, DAC_SDI;
 
     wire        rom_clk;
@@ -15,6 +15,7 @@ module DAC81416_driver_tb ();
     wire [31:0] loc_data_set;
     wire [31:0] loc_data;
     reg [9:0] param_kp = 10, param_ki = 0, param_kd = 0;
+    wire LDACn;
 
 
     initial begin
@@ -64,18 +65,22 @@ module DAC81416_driver_tb ();
         .param_kd      (param_kd),
         .loc_data_set  (loc_data_set),
         .loc_data      (loc_data),
-        .control_output(control_output)
+        .control_output(control_output0)
     );
 
     DAC81416_driver u_DAC81416_driver (
-        .clk           (clk),
-        .rst_n         (rst_n),
-        .start_init_dac(start_init_dac),
-        .start         (start),
-        .control_output(control_output),
-        .DAC_CSn       (DAC_CSn),
-        .DAC_SCLK      (DAC_SCLK),
-        .DAC_SDI       (DAC_SDI)
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .start_init_dac (start_init_dac),
+        .start          (start),
+        .control_output0(control_output0),
+        .control_output1(control_output0),
+        .control_output2(control_output0),
+        .control_output3(control_output0),
+        .DAC_CSn        (DAC_CSn),          // output
+        .DAC_SCLK       (DAC_SCLK),
+        .DAC_SDI        (DAC_SDI),
+        .LDACn          (LDACn)
     );
 
     initial begin
