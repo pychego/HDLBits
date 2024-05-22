@@ -1,4 +1,4 @@
-// convert parallel dac_cmd to spi serial data
+// 和高的spi完全一样, 只是改了module名字, 其他什么都没有改
 module DAC81408_spi (
                             input             clk,
                             input             rst_n,

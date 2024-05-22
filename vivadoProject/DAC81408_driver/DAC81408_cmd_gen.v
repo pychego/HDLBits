@@ -1,9 +1,10 @@
+// 此为8通道全部使能的DAC81408驱动模块, 收LDACn下降沿控制, 八路同步更新
 module DAC81408_cmd_gen (
     input        clk,
     input        rst_n,
     input        start_init_dac,
     input        start,             // start 和 start_init_dac 都来自GPIO
-    input [15:0] control_output4,   // Waiting to write to DAC register
+    input [15:0] control_output4,
     input [15:0] control_output5,
     input [15:0] control_output6,
     input [15:0] control_output7,
@@ -18,12 +19,13 @@ module DAC81408_cmd_gen (
 
 
     // 配置DAC81408的寄存器地址, 注意是08, 不是16
-    localparam SPICONFIG_REG_ADDR = 6'b000011;  // offset   3h
-    localparam GENCONFIG_REG_ADDR = 6'b000100;  // 04h
-    localparam SYNCCONFIG_REG_ADDR = 6'b000110; // 06h
-    localparam DACPWDWN_REG_ADDR = 6'b001001;   // 09h
-    localparam DACRANGE0_REG_ADDR = 6'b001011;  // 0Bh
-    localparam DACRANGE1_REG_ADDR = 6'b001100;  // 0Ch
+    // 以下寄存器的offset和写入的16bit值已经经过反复对比, 没有任何问题
+    localparam SPICONFIG_REG_ADDR = 6'b000011;  // 03h  16'h0A84
+    localparam GENCONFIG_REG_ADDR = 6'b000100;  // 04h  16'h3F00
+    localparam SYNCCONFIG_REG_ADDR = 6'b000110; // 06h  16'h0FF0
+    localparam DACPWDWN_REG_ADDR = 6'b001001;   // 09h  16'hF00F
+    localparam DACRANGE0_REG_ADDR = 6'b001011;  // 0Bh  16'hAAAA
+    localparam DACRANGE1_REG_ADDR = 6'b001100;  // 0Ch  16'hAAAA
 
     localparam DAC0_DATA_REG_ADDR = 6'b010100;  // 14h
     localparam DAC1_DATA_REG_ADDR = 6'b010101;  // 15h
@@ -239,3 +241,11 @@ module DAC81408_cmd_gen (
     end
 
 endmodule
+
+/*
+  2023.5.22
+  使用 state_for_spi 在count_10kHz=8时,开始发送dac_cmd, 此状态下state_for_spi大概0~19
+  每个 state_for_spi 持续500个clk
+  在 state_for_spi=18时设置LDACn=0进行同步更新
+  最终还剩下 count_10kHz=9 这个时间余量
+*/
