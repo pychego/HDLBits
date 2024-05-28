@@ -1,5 +1,6 @@
 // rd_module is not refered in ping-pang, bram_rd_count is the total number of data in the BRAM
 // Loop reading data from BRAM
+// 读取参考波形, 高的这个module不涉及到ping-pang, bram_rd_count是BRAM中数据的总数
 module my_BRAM_rd_controller (
     input        clk,
     input        rst_n,
@@ -8,7 +9,7 @@ module my_BRAM_rd_controller (
 
     (*mark_DEBUG = "TRUE"*) output reg        bram_en,
     (*mark_DEBUG = "TRUE"*) output reg [31:0] bram_addr,
-    (*mark_DEBUG = "TRUE"*) output reg        bram_clk
+    (*mark_DEBUG = "TRUE"*) output reg        bram_clk      // 10Khz
 );
 
     reg [13:0] cnt;
@@ -64,3 +65,9 @@ module my_BRAM_rd_controller (
     end
 
 endmodule
+
+/* 
+ 通过仿真波形,从start信号给出, 每一个控制周期即(1ms) bram_addr+4, 满了之后再次归零, 第一个控制周期bram_addr=0
+ 假设bram_rd_count=10, 则bram_addr依次 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 0,......
+ 何时从BRAM中读取数据是由bram_en控制, 这里通过仿真波形可知在count_10kHz=2时使能, 注意,是2, 不是1
+*/

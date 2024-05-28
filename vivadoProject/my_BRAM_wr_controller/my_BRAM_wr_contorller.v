@@ -5,12 +5,12 @@ module my_BRAM_wr_controller (
     input        clk,
     input        rst_n,
     input        start,
-    input [31:0] bram_count,        // 参数分发模块确定的数据量
+    input [31:0] bram_count,        // 可以存放的数据量为 bram_count*2
 
     (*mark_DEBUG = "TRUE"*) output reg        bram_en,
     (*mark_DEBUG = "TRUE"*) output reg [ 3:0] bram_we,      // 4 bits width, write enable
     (*mark_DEBUG = "TRUE"*) output reg [31:0] bram_addr,
-    (*mark_DEBUG = "TRUE"*) output reg        bram_clk,
+    (*mark_DEBUG = "TRUE"*) output reg        bram_clk,     // 10kHz
     (*mark_DEBUG = "TRUE"*) output reg        bram_wr_done
 );
 
@@ -94,3 +94,5 @@ endmodule
 
 // 最后使用乒乓操作感觉必要性不大,
 // 存放实际位移的BRAM, 每个控制周期存放一个实际位移
+/* 这个模块实际输出的地址数目是 bram_count*2, 当这么多地址全输出之后, 下一个地址就是0
+*/
