@@ -1,11 +1,10 @@
 #ifndef __PID_H__
 #define __PID_H__
 
-#define N 6
+// #include "ap_int.h"
 
+typedef unsigned short Bit_16;
 
-void pid(int kp, int ki, int kd, int data_target, int data_real, int *control_output);
+void pid(bool zero_output, int kp, int ki, int kd, int data_target, int data_real, Bit_16 *control_output);
 
-
-
-# endif
+#endif
