@@ -1,32 +1,14 @@
 /*
 根据matlab IterationFunction得到的C++代码
 */
-#include "mlp.h"
+#include "upDirectSolution.h"
+#include "unstable.h"
 #include "math.h"
 #include "cordic.cpp"
 
 // 输入角度是角度制
-void IterationFunction(float pose[6], float lengths[6], float f[6])
+void upIterationFunction(float pose[6], float lengths[6], float f[6])
 {
-    // 上 stwart 的参数
-    // 定义六个腿的底座坐标(在base坐标系下)
-    RTYPE B[6][3] = {
-        {6.1219f, -24.4478f, 4.0000f},
-        {24.2334f, 6.9222f, 4.0000f},
-        {18.1115f, 17.5257f, 4.0000f},
-        {-18.1115f, 17.5257f, 4.0000f},
-        {-24.2334f, 6.9222f, 4.0000f},
-        {-6.1219f, -24.4478f, 4.0000f}};
-
-    // 定义六个腿的平台坐标(在disturb随体坐标系下)
-    RTYPE P[6][3] = {
-        {11.0404f, -10.4546f, -4.0000f},
-        {14.5742f, -4.3340f, -4.0000f},
-        {3.5337f, 14.7886f, -4.0000f},
-        {-3.5337f, 14.7886f, -4.0000f},
-        {-14.5742f, -4.3340f, -4.0000f},
-        {-11.0404f, -10.4546f, -4.0000f}};
-
     // 定义实际位姿
     float x, y, z, a, b, c;
     x = pose[0];
@@ -110,9 +92,9 @@ void IterationFunction(float pose[6], float lengths[6], float f[6])
             legTemp[j] = 0;
             for (int k = 0; k < 3; k++)
             {
-                legTemp[j] += R[j][k] * P[i][k];
+                legTemp[j] += R[j][k] * up_P[i][k];
             }
-            legTemp[j] += T[j] - B[i][j];
+            legTemp[j] += T[j] - up_B[i][j];
         }
         pose2lengths[i] = sqrt(float(legTemp[0]*legTemp[0] + legTemp[1]*legTemp[1] + legTemp[2]*legTemp[2]));
     }

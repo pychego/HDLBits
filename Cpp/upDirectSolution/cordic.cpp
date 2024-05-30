@@ -1,5 +1,5 @@
 // The file cordic.h holds definitions for the data types and constant valuse
-#include "mlp.h"
+#include "upDirectSolution.h"
 #include <iostream>
 using namespace std;
 // The cordic_phase array holds the angle for the current rotation
@@ -7,8 +7,7 @@ using namespace std;
 THETA_TYPE cordic_phase[NUM_ITERATIONS] = {45, 26.56505118, 14.03624347, 7.12506349, 3.576334375, 1.789910608,
                                            0.8951737102, 0.4476141709, 0.2238105004, 0.1119056771, 0.05595289189, 0.02797645262, 0.01398822714,
                                            0.006994113675, 0.003497851056, 0.001748528427, 0.0008742642137, 0.0004371321069, 0.0002185660534,
-                                           0.0001092830267, 0.00005464151336, 0.00002732075668, 0.00001366037834, 0.00000683018917,
-                                           0.000003415094585, 0.000001707547293};
+                                           0.0001092830267};
 void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c)
 {
     // Set the initial vector that we will rotate

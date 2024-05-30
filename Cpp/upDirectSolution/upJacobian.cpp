@@ -1,11 +1,11 @@
 /*
 根据matlab Jacobian得到的C++代码
 */
-#include "mlp.h"
+#include "upDirectSolution.h"
 #include "math.h"
 using namespace std;
 
-void Jacobian_cordic(float x, float y, float z, float a, float b, float c, float J[6][6])
+void upJacobian(float x, float y, float z, float a, float b, float c, float J[6][6])
 {
 
     // a = a * 3.141592653589793 / 180;

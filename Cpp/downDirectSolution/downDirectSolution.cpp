@@ -62,6 +62,11 @@ void downDirectSolution(float lengths[6], float pose[6])
         {
             std::cout << "ok, 迭代次数i = " << i << std::endl;
             flag = 1;
+            for (int i = 0; i < 6; i++)
+            {
+                pose[i] = roundf(new_pose[i]*10000) / 10000;
+                // pose[i] = new_pose[i];
+            }
             break;
         }
         else

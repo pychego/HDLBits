@@ -1,9 +1,10 @@
 #include <cmath>
-#include "mlp.h"
+#include "upDirectSolution.h"
+#include "unstable.h"
 
 using namespace std;
 
-void mlp(float x[6], float y[6])
+void upMLP(float x[6], float y[6])
 {
 
     // Neural Network Constants

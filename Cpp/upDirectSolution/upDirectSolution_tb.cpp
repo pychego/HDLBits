@@ -1,9 +1,11 @@
-#include "DirectSolution.cpp"
-#include "mlp.cpp"
-#include "IterationFunction.cpp"
-#include "Jacobian_cordic.cpp"
+#include "upDirectSolution.cpp"
+#include "upIterationFunction.cpp"
+#include "upJacobian.cpp"
 #include "inverseMatrix.cpp"
-#include "mlp.h"
+#include "upMLP.cpp"
+
+#include "upDirectSolution.h"
+#include "unstable.h"
 #include <iostream>
 
 int main()
@@ -14,7 +16,7 @@ int main()
     float lengths[6] = {42.4942,41.0681,40.0866,44.5299,43.8046,38.0115};
     // float pose[6] = {-8.164, 5.178, 55.28, 2.158, -3.416, 5.127};
     float pose[6];
-    DirectSolution(lengths, pose);
+    upDirectSolution(lengths, pose);
     for (int i = 0; i < 6; i++)
     {
         std::cout << pose[i] << std::endl;
