@@ -1,9 +1,11 @@
 #include "downDirectSolution.cpp"
 #include "downMLP.cpp"
-#include "IterationFunction.cpp"
+#include "downIterationFunction.cpp"
 #include "downJacobian.cpp"
 #include "inverseMatrix.cpp"
+
 #include "downDirectSolution.h"
+#include "unstable.h"
 #include <iostream>
 
 int main()
