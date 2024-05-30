@@ -1,12 +1,12 @@
 /*
 根据matlab IterationFunction得到的C++代码
 */
-#include "mlp.h"
+#include "downDirectSolution.h"
 #include "math.h"
 #include "cordic.cpp"
 
 // 输入角度是角度制
-void IterationFunction(float pose[6], float lengths[6], float f[6])
+void downIterationFunction(float pose[6], float lengths[6], float f[6])
 {
     // 下 stwart 的参数
     // 定义六个腿的底座坐标(在base坐标系下)

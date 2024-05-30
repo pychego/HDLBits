@@ -1,11 +1,9 @@
 #include <cmath>
-#include "mlp.h"
-
+#include "downDirectSolution.h"
 
 using namespace std;
 
-
-void mlp(float x[6], float y[6])
+void downMLP(float x[6], float y[6])
 {
 
     // Neural Network Constants
@@ -44,7 +42,7 @@ void mlp(float x[6], float y[6])
 
     // Input 1
     // 输入length归一化 mapminmax_apply
-    float xp1[6];    // 归一化输入
+    float xp1[6]; // 归一化输入
     for (int i = 0; i < 6; i++)
     {
         xp1[i] = (x[i] - x1_step1_xoffset[i]) * x1_step1_gain[i] + x1_step1_ymin;
@@ -53,7 +51,7 @@ void mlp(float x[6], float y[6])
 
     // Layer 1
     // tansig_apply
-    float a1[10];    // 第一层输出
+    float a1[10]; // 第一层输出
     for (int i = 0; i < 10; i++)
     {
         float sum = b1[i];
@@ -67,7 +65,7 @@ void mlp(float x[6], float y[6])
 
     // Layer 2 and output
     // 第二层输出并进行反归一化 mapminmax_reverse
-    //float a2[6];    // 第二层输出y
+    // float a2[6];    // 第二层输出y
     for (int i = 0; i < 6; i++)
     {
         float sum = b2[i];
@@ -77,6 +75,4 @@ void mlp(float x[6], float y[6])
         }
         y[i] = (sum - y1_step1_ymin) / y1_step1_gain[i] + y1_step1_xoffset[i];
     }
-
 }
-
