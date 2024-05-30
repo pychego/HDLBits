@@ -3,9 +3,7 @@
 
 #define N 6
 
-#define NUM_ITERATIONS 15
-
-#define Sqrt_eps 10e-5
+#define NUM_ITERATIONS 20
 
 #define DEG2RAD 0.017453
 
@@ -17,7 +15,6 @@ typedef float COS_SIN_TYPE;
 
 
 
-void mlp(float x[6], float y[6]);
 
 /* 输入: pose 神经网络/迭代得到的位姿
         lengths 正解输入的腿长
@@ -26,11 +23,9 @@ void mlp(float x[6], float y[6]);
 
 void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c);
 
-// void Jacobian(float x, float y, float z, float a, float b, float c, float J[6][6]);
 
-void Jacobian_op(float x, float y, float z, float a, float b, float c, float J[6][6]);
+void CompensationJacobian(float x, float y, float z, float a, float b, float c, float J[6][6]);
 
-float Sqrt(float k);
 
 
 # endif
