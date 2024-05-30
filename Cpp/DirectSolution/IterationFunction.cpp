@@ -36,18 +36,18 @@ void IterationFunction(float pose[6], float lengths[6], float f[6])
     b = pose[4];
     c = pose[5];
 
-    // COS_SIN_TYPE sina, sinb, sinc, cosa, cosb, cosc;
+    COS_SIN_TYPE sina, sinb, sinc, cosa, cosb, cosc;
 
-    // cordic(a, &sina, &cosa);
-    // cordic(b, &sinb, &cosb);
-    // cordic(c, &sinc, &cosc);
-    float sina, sinb, sinc, cosa, cosb, cosc;
-    sina = sin(a * DEG2RAD);
-    sinb = sin(b * DEG2RAD);
-    sinc = sin(c * DEG2RAD);
-    cosa = cos(a * DEG2RAD);
-    cosb = cos(b * DEG2RAD);
-    cosc = cos(c * DEG2RAD);
+    cordic(a, &sina, &cosa);
+    cordic(b, &sinb, &cosb);
+    cordic(c, &sinc, &cosc);
+    // float sina, sinb, sinc, cosa, cosb, cosc;
+    // sina = sin(a * DEG2RAD);
+    // sinb = sin(b * DEG2RAD);
+    // sinc = sin(c * DEG2RAD);
+    // cosa = cos(a * DEG2RAD);
+    // cosb = cos(b * DEG2RAD);
+    // cosc = cos(c * DEG2RAD);
     // 定义三个旋转矩阵, 这里使用旋转角顺序 x->y->z
     float T[3] = {x, y, z};
 

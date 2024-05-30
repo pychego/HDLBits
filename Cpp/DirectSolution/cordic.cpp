@@ -1,18 +1,21 @@
 // The file cordic.h holds definitions for the data types and constant valuse
-#include"mlp.h"
+// 后面还可以进行定点数优化, 这里使用的是浮点数
+#include "mlp.h"
 #include <iostream>
 using namespace std;
 // The cordic_phase array holds the angle for the current rotation
 // 计算tan-1(2^-i)的值 i=0,1,2......
-THETA_TYPE cordic_phase[NUM_ITERATIONS] = {
-    45, 26.5650, 14.0362, 7.1250, 3.5763, 1.7891, 0.8952, 0.4476, 0.2238, 0.1119, 0.05595, 0.02797, 0.01398822714, 0.00699, 0.003497};
-
+THETA_TYPE cordic_phase[NUM_ITERATIONS] = {    45, 26.56505118, 14.03624347, 7.12506349, 3.576334375, 1.789910608,
+     0.8951737102, 0.4476141709, 0.2238105004, 0.1119056771, 0.05595289189,
+    0.02797645262, 0.01398822714, 0.006994113675, 0.003497851056,
+    0.001748528427, 0.0008742642137, 0.0004371321069, 0.0002185660534,
+    0.0001092830267};
 void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c)
 {
     // Set the initial vector that we will rotate
     // current_cos = I;current = Q
-    COS_SIN_TYPE current_cos =0.60725;
-;
+    COS_SIN_TYPE current_cos = 0.607252935;
+    ;
     COS_SIN_TYPE current_sin = 0;
 
     // Factor is the 2^(-L) value
@@ -24,7 +27,7 @@ void cordic(THETA_TYPE theta, COS_SIN_TYPE *s, COS_SIN_TYPE *c)
     {
         // Determine if we are rotating by a positive or negative angle
         int sigma = (theta < 0) ? -1 : 1;
-        
+
         // Save the current_cos,so that it can be used in the sine calculation
         COS_SIN_TYPE temp_cos = current_cos;
 

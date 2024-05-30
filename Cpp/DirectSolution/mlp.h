@@ -4,7 +4,7 @@
 #define N 6
 
 // CORDIC求解正余弦的迭代次数
-#define NUM_ITERATIONS 15
+#define NUM_ITERATIONS 20
 
 #define DEG2RAD 0.01745329
 
