@@ -24,7 +24,7 @@ void IdealPlatform2disturb(float pose1[6], float pose2[6])
         }
     }
 
-    //根据xyz幸好旋转矩阵求欧拉角
+    //根据xyz欧拉角旋转矩阵求欧拉角
     float sy = sqrt(R[1][2] * R[1][2] + R[2][2] * R[2][2]);
     float a = atan2(-R[1][2], R[2][2]) * 180 / M_PI;
     float b = atan2(R[0][2], sy) * 180 / M_PI;

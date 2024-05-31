@@ -28,9 +28,8 @@ void RxRyRzFunction(float a, float b, float c, float R[3][3])
         {0, 0, 1},
     };
 
-    // 中间变量矩阵RxRy
+    // 中间变量矩阵RxRy 需要初始化为0
     float RxRy[3][3] = {0};
-    
 
     // 计算RxRy
     for (int i = 0; i < 3; i++)

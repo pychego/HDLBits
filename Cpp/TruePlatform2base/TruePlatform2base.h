@@ -5,7 +5,7 @@
 typedef float THETA_TYPE;
 typedef float COS_SIN_TYPE;
 
-#define NUM_ITERATIONS 26
+#define NUM_ITERATIONS 20
 
 // 输入角度制，输出旋转矩阵
 void RxRyRzFunction(float a, float b, float c, float R[3][3]);
