@@ -1,16 +1,17 @@
-#include "mlp.h"
+#include "compensation.h"
+#include "unstable.h"
 #include "math.h"
 #include <iostream>
 
 void upDirectSolution(float lengths[6], float pose[6])
 {
     // 通过神经网络获取迭代初始位姿
-    mlp(lengths, pose);
+    upMLP(lengths, pose);
     // 输出pose
 
-    int MAX_ITERATION = 3; // 最大迭代次数
+    int maxIteration = MAX_ITERATION; // 最大迭代次数
     int flag = 0;   // 判断是否迭代成功
-    float eps = 0.0001;  // 约定的迭代精度10e-4 正常情况下2次迭代达到
+    float eps = EPS;  // 约定的迭代精度10e-4 正常情况下2次迭代达到
     // 到这里没问题
     float f[6];
 
@@ -27,9 +28,9 @@ void upDirectSolution(float lengths[6], float pose[6])
         float error_max = 0;
 
         // f = 迭代初始位姿求解出的腿长 - 正解输入的腿长
-        IterationFunction(pose, lengths, f);
+        upIterationFunction(pose, lengths, f);
         // 求雅可比矩阵df
-        Jacobian_cordic(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
+        upJacobian(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
         // 求df的逆矩阵
         inverseMatrix(df, df_inv);
 

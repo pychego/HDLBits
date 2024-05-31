@@ -1,20 +1,21 @@
 #include "compensation.h"
+#include "unstable.h"
 #include "math.h"
 #include <iostream>
 
 void downDirectSolution(float lengths[6], float pose[6])
 {
     // 通过神经网络获取迭代初始位姿
-    mlp(lengths, pose);
+    downMLP(lengths, pose);
     // 输出pose
-    for (int i = 0; i < 6; i++)
-    {
-        std::cout << pose[i] << std::endl;
-    }
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     std::cout << pose[i] << std::endl;
+    // }
 
-    int MAX_ITERATION = 3; // 最大迭代次数
-    int flag = 0;   // 判断是否迭代成功
-    float eps = 0.0001;  // 约定的迭代精度
+    int maxIteratrion = MAX_ITERATION; // 最大迭代次数
+    int flag = 0;                      // 判断是否迭代成功
+    float eps = EPS;                   // 约定的迭代精度
 
     float f[6];
 
@@ -23,7 +24,7 @@ void downDirectSolution(float lengths[6], float pose[6])
     float df_inv[6][6];
     float new_pose[6];
 
-    for (int i = 0; i < MAX_ITERATION; i++)
+    for (int i = 0; i < maxIteratrion; i++)
     {
         // 用temp 存放df_inv * f
         float temp[6];
@@ -31,9 +32,9 @@ void downDirectSolution(float lengths[6], float pose[6])
         float error_max = 0;
 
         // f = 迭代初始位姿求解出的腿长 - 正解输入的腿长
-        IterationFunction(pose, lengths, f);
+        downIterationFunction(pose, lengths, f);
         // 求雅可比矩阵df
-        Jacobian_cordic(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
+        downJacobian(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
         // 求df的逆矩阵
         inverseMatrix(df, df_inv);
 
@@ -61,6 +62,11 @@ void downDirectSolution(float lengths[6], float pose[6])
         {
             std::cout << "ok, 迭代次数i = " << i << std::endl;
             flag = 1;
+            for (int i = 0; i < 6; i++)
+            {
+                pose[i] = roundf(new_pose[i]*10000) / 10000;
+                // pose[i] = new_pose[i];
+            }
             break;
         }
         else
