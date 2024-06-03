@@ -36,7 +36,6 @@ void transpose(float R[3][3], float Rt[3][3]);
 
 void IdealPlatform2disturb(float pose1[6], float pose2[6]);
 
-
 void compensation(float downLengths[6], float upLengths[6], float target[6]);
 
 

@@ -3,7 +3,7 @@
 #include "math.h"
 #include <iostream>
 
-void upDirectSolution(float lengths[6], float pose[6])
+void upDirectSolution(float lengths[6], float pose[6], float Compensation_J[6][6])
 {
     // 通过神经网络获取迭代初始位姿
     upMLP(lengths, pose);
@@ -77,4 +77,6 @@ void upDirectSolution(float lengths[6], float pose[6])
             }
         }
     }
+    upJacobian(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], Compensation_J);
+
 }

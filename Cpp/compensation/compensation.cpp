@@ -3,10 +3,12 @@
 #include "math.h"
 #include <iostream>
 
-void compensation(float downLengths[6], float upLengths[6], float targets[6])
+void  compensation(float downLengths[6], float upLengths[6], float targets[6])
 {
     float pose1[6];
     float pose2[6];
+    float Compensation_J[6][6];
+
 
     downDirectSolution(downLengths, pose1);
     // 以上没问题
@@ -17,7 +19,7 @@ void compensation(float downLengths[6], float upLengths[6], float targets[6])
     //     std::cout << pose1[i] << std::endl;
     // }
 
-    upDirectSolution(upLengths, pose2);
+    upDirectSolution(upLengths, pose2, Compensation_J);
     // 以上没问题
     // std::cout << "pose2:" << std::endl;
     // for (int i = 0; i < 6; i++)
@@ -54,7 +56,6 @@ void compensation(float downLengths[6], float upLengths[6], float targets[6])
     //     std::cout << Approaching_targets[i] << std::endl;
     // }
 
-    float Compensation_J[6][6];
     float error_pose[6];
     // error_pose = Approaching_targets - pose2;
     for (int i = 0; i < 6; i++)
@@ -62,7 +63,7 @@ void compensation(float downLengths[6], float upLengths[6], float targets[6])
         error_pose[i] = pose4[i] - pose2[i];
     }
 
-    upJacobian(pose2[0], pose2[1], pose2[2], pose2[3], pose2[4], pose2[5], Compensation_J);
+    
     // 请注意，以上得到的Compensation_J后三列没有扩大，仿真显示后三列扩大 180/ pi 倍效果更好
 
     float Compensation_targets[6] = {0};
