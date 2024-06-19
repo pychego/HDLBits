@@ -1,11 +1,13 @@
 // what is the position of this module in the entire design?
+// 海宁ssi传感器参数： 量程210mm 25bit 0.001mm 格雷码
+// 25bit, 但为了和后面模块保持一致 将其扩展为32bit
 module SSI_gray_driver (
     input clk,
     input rst_n,
     (*mark_DEBUG = "TRUE"*) input SSI_data,            // 传感器差分信号经MAX3077变为单端信号，给zynq
 
     (*mark_DEBUG = "TRUE"*) output reg        SSI_clk,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     [24:0] loc_data  // 25bit
+    (*mark_DEBUG = "TRUE"*) output     [31:0] loc_data  // 31bit
 );
     // 根据SSI时序可知，SSI_clk每来一个上升沿传感器就送入一个SSI_data 因此要设计在SSI_clk下降沿读取SSI_data
 
@@ -79,7 +81,7 @@ module SSI_gray_driver (
             loc_data_gray <= data_buffer;
             data_buffer   <= 25'd0;
         end
-    end
+    end 
 
     reg [ 4:0] i = 0;
     (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data_binary;
@@ -135,13 +137,14 @@ module SSI_gray_driver (
         end
     end
 
-    assign loc_data = loc_data_binary_r;
+    assign loc_data = {8'd0, loc_data_binary_r};
 
     // 需不需要设置复位？ 感觉不需要
 
 endmodule
 /*
-此为格雷码传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data 但我需要知道这25位代表的实际位移是多少
+适用于海宁的ssi传感器
+此为格雷码传感器的驱动模块，输出是二进制的位移数据[31:0] loc_data 
 
 我改动的部分，在case刚进入0的时候，保存下来loc_data_gray为loc_data_gray_r，在case的0-25这一轮，loc_data_gray_r
 保持不变，这样可保证loc_data_binary_r不会出现不稳定的暂态

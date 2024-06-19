@@ -6,7 +6,7 @@ module SSI_gray_driver_tb ();
     reg         rst_n;
     reg         SSI_data;
     wire        SSI_clk;
-    wire [24:0] loc_data;
+    wire [31:0] loc_data;
 
     initial begin
         clk   = 1'b0;
