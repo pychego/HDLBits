@@ -45,6 +45,8 @@ module my_BRAM_rd_controller (
             bram_en   <= 1'b0;
             bram_addr <= 32'd0;
         end else if (clk_10kHz_en) begin
+            // clk_10kHz_en 在count_10kHz=1的最后时间才是1
+            // 因此在count_10kHz=2的状况下bram_en=1
             case (count_10kHz)
                 4'd1: begin
                     bram_en <= 1'b1;

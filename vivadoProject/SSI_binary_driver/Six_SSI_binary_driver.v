@@ -1,5 +1,5 @@
 // 完全复制SSI_binary_driver.v而来
-
+// 适用于紫金港六自由度平台
 module Six_SSI_binary_driver (
     input clk,
     input rst_n,
