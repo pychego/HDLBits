@@ -107,6 +107,7 @@ module Six_SSI_binary_driver (
         end
     end
 
+    // 这里使用了低位宽数据给高位宽数据赋值,应该是没啥问题
     assign loc_data0 = loc_data0_gray;
 
 
@@ -205,7 +206,7 @@ module Six_SSI_binary_driver (
 
 endmodule
 /*
-此为格雷码传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data0 但我需要知道这25位代表的实际位移是多少
+此为二进制传感器的驱动模块，输出是二进制的位移数据[24:0] loc_data0 但我需要知道这25位代表的实际位移是多少
 
 我改动的部分，在case刚进入0的时候，保存下来loc_data0_gray为loc_data0_gray_r，在case的0-25这一轮，loc_data0_gray_r
 保持不变，这样可保证loc_data0_binary_r不会出现不稳定的暂态

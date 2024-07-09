@@ -23,5 +23,8 @@ int main()
     {
         std::cout << pose[i] << std::endl;
     }
+    int ssi = 60000;
+    float ssi_cm = ssi / 10000.0;
+    std::cout << ssi_cm << std::endl;
 
 }
