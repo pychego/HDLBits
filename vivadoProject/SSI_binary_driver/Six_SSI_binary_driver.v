@@ -3,26 +3,26 @@
 module Six_SSI_binary_driver (
     input clk,
     input rst_n,
-    (*mark_DEBUG = "TRUE"*) input SSI_data0,            // 传感器差分信号经MAX3077变为单端信号，给zynq
-    (*mark_DEBUG = "TRUE"*) input SSI_data1,
-    (*mark_DEBUG = "TRUE"*) input SSI_data2,
-    (*mark_DEBUG = "TRUE"*) input SSI_data3,
-    (*mark_DEBUG = "TRUE"*) input SSI_data4,
-    (*mark_DEBUG = "TRUE"*) input SSI_data5,
+    input SSI_data0,  // 传感器差分信号经MAX3077变为单端信号，给zynq
+    input SSI_data1,
+    input SSI_data2,
+    input SSI_data3,
+    input SSI_data4,
+    input SSI_data5,
 
-    (*mark_DEBUG = "TRUE"*) output reg SSI_clk0,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     SSI_clk1,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     SSI_clk2,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     SSI_clk3,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     SSI_clk4,  // output to sensor
-    (*mark_DEBUG = "TRUE"*) output     SSI_clk5,  // output to sensor
+    output reg SSI_clk0,  // output to sensor
+    output     SSI_clk1,  // output to sensor
+    output     SSI_clk2,  // output to sensor
+    output     SSI_clk3,  // output to sensor
+    output     SSI_clk4,  // output to sensor
+    output     SSI_clk5,  // output to sensor
 
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data0,  // 31bit, 为了和后面的模块数据对齐
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data1,
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data2,
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data3,
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data4,
-    (*mark_DEBUG = "TRUE"*) output [31:0] loc_data5
+    output [31:0] loc_data0,  // 31bit, 为了和后面的模块数据对齐
+    output [31:0] loc_data1,
+    output [31:0] loc_data2,
+    output [31:0] loc_data3,
+    output [31:0] loc_data4,
+    output [31:0] loc_data5
 );
     // 根据SSI时序可知，SSI_clk0每来一个上升沿传感器就送入一个SSI_data0 因此要设计在SSI_clk0下降沿读取SSI_data0
 
@@ -34,12 +34,12 @@ module Six_SSI_binary_driver (
         else cnt <= cnt + 1'b1;
     end
 
-    (*mark_DEBUG = "TRUE"*) wire clk_1MHz_en;
+    wire clk_1MHz_en;
     assign clk_1MHz_en = (cnt == 8'd1);
 
     // count_1MHz from 0 to 72, 73 states in total
     // count_1MHz在每个状态停留的时间是 1 / 1MHz
-    (*mark_DEBUG = "TRUE"*) reg [7:0] count_1MHz;
+    reg [7:0] count_1MHz;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_1MHz <= 8'd0;
         else if (clk_1MHz_en) begin
@@ -60,7 +60,7 @@ module Six_SSI_binary_driver (
     end
 
     // SSI_flag is used to indicate the SSI_clk0 is in the period of 22~71
-    (*mark_DEBUG = "TRUE"*) reg SSI_flag;
+    reg SSI_flag;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) SSI_flag <= 1'b0;
         else if (clk_1MHz_en) begin
@@ -72,7 +72,7 @@ module Six_SSI_binary_driver (
     end
 
     // 25 SSI_clk0 neg edge
-    (*mark_DEBUG = "TRUE"*) reg [7:0] count_SSIclk;
+    reg [7:0] count_SSIclk;
     always @(negedge SSI_clk0 or negedge rst_n) begin
         if (!rst_n) count_SSIclk <= 8'd0;
         else if (SSI_flag) count_SSIclk <= count_SSIclk + 1'b1;
@@ -131,8 +131,8 @@ module Six_SSI_binary_driver (
 
 
     /* 设置通道输出 loc_data2 ****************************************/
-    (*mark_DEBUG = "TRUE"*)reg [24:0] data_buffer2;
-    (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data2_gray;
+    reg [24:0] data_buffer2;
+    reg [24:0] loc_data2_gray;
     always @(negedge SSI_clk0 or negedge rst_n) begin
         if (!rst_n) begin
             loc_data2_gray <= 25'd0;
@@ -150,8 +150,8 @@ module Six_SSI_binary_driver (
 
 
     /* 设置通道输出 loc_data3 ****************************************/
-    (*mark_DEBUG = "TRUE"*)reg [24:0] data_buffer3;
-    (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data3_gray;
+    reg [24:0] data_buffer3;
+    reg [24:0] loc_data3_gray;
     always @(negedge SSI_clk0 or negedge rst_n) begin
         if (!rst_n) begin
             loc_data3_gray <= 25'd0;
@@ -168,8 +168,8 @@ module Six_SSI_binary_driver (
     assign loc_data3 = loc_data3_gray;
 
     /* 设置通道输出 loc_data4 ****************************************/
-    (*mark_DEBUG = "TRUE"*)reg [24:0] data_buffer4;
-    (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data4_gray;
+    reg [24:0] data_buffer4;
+    reg [24:0] loc_data4_gray;
     always @(negedge SSI_clk0 or negedge rst_n) begin
         if (!rst_n) begin
             loc_data4_gray <= 25'd0;
@@ -186,8 +186,8 @@ module Six_SSI_binary_driver (
     assign loc_data4 = loc_data4_gray;
 
     /* 设置通道输出 loc_data5 ****************************************/
-    (*mark_DEBUG = "TRUE"*)reg [24:0] data_buffer5;
-    (*mark_DEBUG = "TRUE"*)reg [24:0] loc_data5_gray;
+    reg [24:0] data_buffer5;
+    reg [24:0] loc_data5_gray;
     always @(negedge SSI_clk0 or negedge rst_n) begin
         if (!rst_n) begin
             loc_data5_gray <= 25'd0;

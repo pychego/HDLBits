@@ -48,8 +48,8 @@ module SixParalleldata2FIFO (
                         state <= 0;
                     end
                 end
-                1: begin  // 发送过程, 一次发送512个data
-                    if (M_AXIS_tready) begin  // 发送的第一个数据是0,不是1
+                1: begin
+                    if (M_AXIS_tready) begin
                         if (SelectInput == 0) begin
                             M_AXIS_tdata <= data1;
                             SelectInput <= 1;
