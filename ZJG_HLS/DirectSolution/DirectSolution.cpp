@@ -3,15 +3,15 @@
 #include "math.h"
 #include <iostream>
 
-void downDirectSolution(float lengths[6], float pose[6])
+void DirectSolution(float lengths[6], float pose[6])
 {
     // 通过神经网络获取迭代初始位姿
-    downMLP(lengths, pose);
+    MLP(lengths, pose);
     // 输出pose
-    for (int i = 0; i < 6; i++)
-    {
-        std::cout << pose[i] << std::endl;
-    }
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     std::cout << pose[i] << std::endl;
+    // }
 
     int maxIteratrion = MAX_ITERATION; // 最大迭代次数
     int flag = 0;                      // 判断是否迭代成功
@@ -32,9 +32,9 @@ void downDirectSolution(float lengths[6], float pose[6])
         float error_max = 0;
 
         // f = 迭代初始位姿求解出的腿长 - 正解输入的腿长
-        downIterationFunction(pose, lengths, f);
+        IterationFunction(pose, lengths, f);
         // 求雅可比矩阵df
-        downJacobian(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
+        Jacobian(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], df);
         // 求df的逆矩阵
         inverseMatrix(df, df_inv);
 

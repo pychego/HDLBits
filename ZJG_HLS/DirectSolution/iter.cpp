@@ -1,6 +1,6 @@
 #include <iostream>
 #include "math.h"
-#include "downDirectSolution.h"
+#include "DirectSolution.h"
 #include "Jacobian.cpp"
 #include "Jacobian_cordic.cpp"
 #include "IterationFunction.cpp"

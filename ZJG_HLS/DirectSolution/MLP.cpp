@@ -5,7 +5,7 @@
 using namespace std;
 
 // 适用于紫金港的六自由度平台MLP参数
-void downMLP(float x[6], float y[6])
+void MLP(float x[6], float y[6])
 {
 
     // Neural Network Constants
