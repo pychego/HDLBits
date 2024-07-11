@@ -2,17 +2,16 @@
 // consisting of two data buffers in total
 // 已经修改bram_count即为实际可存放的点数，同时BRAM_en使能和rd_BRAM在同一时候
 
-module my_BRAM_wr_controller (
+module SxiAxis_BRAM_wr_control (
     input        clk,
     input        rst_n,
     input        start,
     input [31:0] bram_count,
 
     (*mark_DEBUG = "TRUE"*) output reg        bram_en,
-    (*mark_DEBUG = "TRUE"*) output reg [ 3:0] bram_we,      // 4 bits width, write enable
+    (*mark_DEBUG = "TRUE"*) output reg [ 3:0] bram_we,    // 4 bits width, write enable
     (*mark_DEBUG = "TRUE"*) output reg [31:0] bram_addr,
-    (*mark_DEBUG = "TRUE"*) output reg        bram_clk,     // 10kHz
-    (*mark_DEBUG = "TRUE"*) output reg        bram_wr_done  // 这个信号没用
+    (*mark_DEBUG = "TRUE"*) output reg        bram_clk    // 10kHz
 );
 
     reg [13:0] cnt;
@@ -53,12 +52,12 @@ module my_BRAM_wr_controller (
                 // 4'd0:
                 // 4'd1:
                 // 4'd2:
-                4'd1: begin
+                4'd7: begin
                     bram_en <= 1'b1;
                     bram_we <= 4'hf;  // This signal maintains one bram_clk cycle
                 end
                 // 4'd4:
-                4'd2: begin
+                4'd9: begin
                     bram_en <= 1'b0;
                     if (bram_addr >= (bram_count << 2) - 32'd4) bram_addr <= 32'd0;
                     else bram_addr <= bram_addr + 32'd4;
@@ -72,20 +71,6 @@ module my_BRAM_wr_controller (
                 end
             endcase
             // end
-        end
-    end
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            bram_wr_done <= 1'b0;
-        end else if (clk_10kHz_en) begin
-            if(((bram_addr == (bram_count << 2) - 32'd4)
-			|| (bram_addr == (bram_count << 3) - 32'd4))
-			&& bram_count != 32'd0			
-            && bram_en == 1'b1) begin
-                // Flip bram_wr_done halfway through or after writing to the last address
-                bram_wr_done <= ~bram_wr_done;     
-            end
         end
     end
 
