@@ -10,7 +10,6 @@ module SxiAxis_BRAM_wr_control_tb ();
     wire [31:0] bram_addr;
     wire        bram_clk;
     reg  [31:0] bram_count;
-    wire        bram_wr_done;
 
     initial begin
         clk   = 1'b0;

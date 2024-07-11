@@ -69,22 +69,22 @@ module DAC81408_driver_tb ();
     );
 
     DAC81408_driver u_DAC81408_driver (
-        .clk            (clk),
-        .rst_n          (rst_n),
-        .start_init_dac (start_init_dac),
-        .start          (start),
-        .control_output4(control_output0),
-        .control_output5(control_output0),
-        .control_output6(control_output0),
-        .control_output7(control_output0),
-        .control_output8(control_output0),
-        .control_output9(control_output0),
+        .clk             (clk),
+        .rst_n           (rst_n),
+        .start_init_dac  (start_init_dac),
+        .start           (start),
+        .control_output4 (control_output0),
+        .control_output5 (control_output0),
+        .control_output6 (control_output0),
+        .control_output7 (control_output0),
+        .control_output8 (control_output0),
+        .control_output9 (control_output0),
         .control_output10(control_output0),
         .control_output11(control_output0),
-        .DAC_CSn        (DAC_CSn),          // output
-        .DAC_SCLK       (DAC_SCLK),
-        .DAC_SDI        (DAC_SDI),
-        .LDACn          (LDACn)
+        .DAC_CSn         (DAC_CSn),          // output
+        .DAC_SCLK        (DAC_SCLK),
+        .DAC_SDI         (DAC_SDI),
+        .LDACn           (LDACn)
     );
 
     initial begin

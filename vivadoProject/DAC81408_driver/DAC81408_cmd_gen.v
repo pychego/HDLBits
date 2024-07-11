@@ -1,19 +1,19 @@
 // 此为8通道全部使能的DAC81408驱动模块, 收LDACn下降沿控制, 八路同步更新
 module DAC81408_cmd_gen (
-    input        clk,
-    input        rst_n,
-    input        start_init_dac,
-    input        start,             // start 和 start_init_dac 都来自GPIO
-    input [15:0] control_output4,
-    input [15:0] control_output5,
-    input [15:0] control_output6,
-    input [15:0] control_output7,
-    input [15:0] control_output8,
-    input [15:0] control_output9,
-    input [15:0] control_output10,
-    input [15:0] control_output11,
-    output reg [23:0] dac_cmd,        // the two signals are passed to DAC81416_spi
-    output reg        dac_cmd_valid,  // 声明此时的dac_cmd是有效的
+    input             clk,
+    input             rst_n,
+    input             start_init_dac,
+    input             start,             // start 和 start_init_dac 都来自GPIO
+    input      [15:0] control_output4,
+    input      [15:0] control_output5,
+    input      [15:0] control_output6,
+    input      [15:0] control_output7,
+    input      [15:0] control_output8,
+    input      [15:0] control_output9,
+    input      [15:0] control_output10,
+    input      [15:0] control_output11,
+    output reg [23:0] dac_cmd,           // the two signals are passed to DAC81416_spi
+    output reg        dac_cmd_valid,     // 声明此时的dac_cmd是有效的
     output reg        LDACn
 );
 
@@ -22,8 +22,8 @@ module DAC81408_cmd_gen (
     // 以下寄存器的offset和写入的16bit值已经经过反复对比, 没有任何问题
     localparam SPICONFIG_REG_ADDR = 6'b000011;  // 03h  16'h0A84
     localparam GENCONFIG_REG_ADDR = 6'b000100;  // 04h  16'h3F00
-    localparam SYNCCONFIG_REG_ADDR = 6'b000110; // 06h  16'h0FF0
-    localparam DACPWDWN_REG_ADDR = 6'b001001;   // 09h  16'hF00F
+    localparam SYNCCONFIG_REG_ADDR = 6'b000110;  // 06h  16'h0FF0
+    localparam DACPWDWN_REG_ADDR = 6'b001001;  // 09h  16'hF00F
     localparam DACRANGE0_REG_ADDR = 6'b001011;  // 0Bh  16'hAAAA
     localparam DACRANGE1_REG_ADDR = 6'b001100;  // 0Ch  16'hAAAA
 
