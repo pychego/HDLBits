@@ -23,5 +23,4 @@ int main()
     {
         std::cout << pose[i] << std::endl;
     }
-
 }
