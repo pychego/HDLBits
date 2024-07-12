@@ -1,8 +1,8 @@
 /* 该模块用于将六路并联信号(实时SSI)转化为M_AXIStream, 与 AXI Stream DATA FIFO连接 
-   通过DMA一次性将六个实时SSI信号传输到DDR中,只需要用到DMA write功能
+   通过DMA一次性将6个实时SSI信号和反解得到的target传输到DDR中,只需要用到DMA write功能
 */
 
-module SixParalleldata2FIFO (
+module TwelveParalleldata2FIFO (
     input clk,
     input rst_n,
 
@@ -12,6 +12,12 @@ module SixParalleldata2FIFO (
     input [31:0] data3,
     input [31:0] data4,
     input [31:0] data5,
+    input [31:0] data6,
+    input [31:0] data7,
+    input [31:0] data8,
+    input [31:0] data9,
+    input [31:0] data10,
+    input [31:0] data11,
 
     // M_AXIS接口 与AXI4-Stream Data FIFO接口连接
     output reg [31:0] M_AXIS_tdata,
@@ -70,6 +76,30 @@ module SixParalleldata2FIFO (
                             4: begin
                                 M_AXIS_tdata <= data5;
                                 SelectInput <= 5;
+                            end
+                            5: begin
+                                M_AXIS_tdata <= data6;
+                                SelectInput  <= 6;
+                            end
+                            6: begin
+                                M_AXIS_tdata <= data7;
+                                SelectInput  <= 7;
+                            end
+                            7: begin
+                                M_AXIS_tdata <= data8;
+                                SelectInput  <= 8;
+                            end
+                            8: begin
+                                M_AXIS_tdata <= data9;
+                                SelectInput  <= 9;
+                            end
+                            9: begin
+                                M_AXIS_tdata <= data10;
+                                SelectInput  <= 10;
+                            end
+                            10: begin
+                                M_AXIS_tdata <= data11;
+                                SelectInput <= 11;
                                 M_AXIS_tlast <= 1'b1;
                                 state <= 2;
                             end
