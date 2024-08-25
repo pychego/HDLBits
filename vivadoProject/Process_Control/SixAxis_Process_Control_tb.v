@@ -7,6 +7,7 @@ module SixAxis_Process_Control_tb ();
     reg  start;
 
     wire Solution_ap_start;
+    wire Compensate_ap_start;
     wire PID_ap_start;
 
     initial begin
@@ -21,11 +22,12 @@ module SixAxis_Process_Control_tb ();
     always #5 clk = ~clk;
 
     SixAxis_Process_Control my_SixAxis_Processe_Control_0 (
-        .clk         (clk),
-        .rst_n       (rst_n),
-        .start       (start),
-        .Solution_ap_start(Solution_ap_start),
-        .PID_ap_start(PID_ap_start)
+        .clk                (clk),
+        .rst_n              (rst_n),
+        .start              (start),
+        .Solution_ap_start  (Solution_ap_start),
+        .Compensate_ap_start(Compensate_ap_start),
+        .PID_ap_start       (PID_ap_start)
     );
 
 
