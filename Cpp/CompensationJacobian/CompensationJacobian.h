@@ -7,6 +7,9 @@
 
 #define DEG2RAD 0.017453
 
+#define RAD2DEG 57.29578
+
+
 typedef float RTYPE;
 
 typedef float THETA_TYPE;
