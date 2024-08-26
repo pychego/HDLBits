@@ -107,105 +107,161 @@ module DAC81408_cmd_gen (
                 if (!init_done_flag) begin  // if initialization is not done, do initialization
                     case (count_10kHz_init_dac)
                         // 16'd0: 因为默认就是在state=0,所以这个状态不能用
-                        16'd1: begin
-                            dac_cmd <= {1'b0, 1'b0, SPICONFIG_REG_ADDR, 16'h0A84};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd2: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        16'd3: begin
-                            dac_cmd <= {1'b0, 1'b0, GENCONFIG_REG_ADDR, 16'h3F00};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd4: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        16'd5: begin
-                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hF00F};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd6: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        16'd7: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd8: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        16'd9: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE1_REG_ADDR, 16'hAAAA};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd10: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        16'd11: begin
-                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'h0FF0};
-                            dac_cmd_valid <= 1'b1;
-                        end
-                        16'd12: begin
-                            dac_cmd_valid <= 1'b0;
-                        end
-                        // 以上为初始化设置完成zzzzzzzzzzzzzzzzzzz
-                        13: begin
+                        1: begin
                             dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        2: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        3: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        4: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        5: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC2_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        6: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        7: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        8: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        9: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC4_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        10: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        11: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC5_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        12: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        13: begin
+                            dac_cmd <= {1'b0, 1'b0, DAC6_DATA_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         14: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         15: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, 16'd32768};
+                            dac_cmd <= {1'b0, 1'b0, DAC7_DATA_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         16: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        17: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC2_DATA_REG_ADDR, 16'd32768};
+                        16'd17: begin
+                            dac_cmd <= {1'b0, 1'b0, SPICONFIG_REG_ADDR, 16'h0A84};
                             dac_cmd_valid <= 1'b1;
                         end
-                        18: begin
+                        16'd18: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        19: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, 16'd32768};
+                        16'd19: begin
+                            dac_cmd <= {1'b0, 1'b0, GENCONFIG_REG_ADDR, 16'h3F00};
                             dac_cmd_valid <= 1'b1;
                         end
-                        20: begin
+                        16'd20: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        21: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC4_DATA_REG_ADDR, 16'd32768};
+                        16'd21: begin
+                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hF00F};
                             dac_cmd_valid <= 1'b1;
                         end
-                        22: begin
+                        16'd22: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        23: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC5_DATA_REG_ADDR, 16'd32768};
+                        16'd23: begin
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
                             dac_cmd_valid <= 1'b1;
                         end
-                        24: begin
+                        16'd24: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        25: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC6_DATA_REG_ADDR, 16'd32768};
+                        16'd25: begin
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE1_REG_ADDR, 16'hAAAA};
                             dac_cmd_valid <= 1'b1;
                         end
-                        26: begin
+                        16'd26: begin
                             dac_cmd_valid <= 1'b0;
                         end
-                        27: begin
-                            dac_cmd <= {1'b0, 1'b0, DAC7_DATA_REG_ADDR, 16'd32768};
+                        16'd27: begin
+                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'h0FF0};
                             dac_cmd_valid <= 1'b1;
                         end
-                        28: begin
+                        16'd28: begin
                             dac_cmd_valid <= 1'b0;
                         end
+                        // 以上为初始化设置完成zzzzzzzzzzzzzzzzzzz
+                        // 13: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 14: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 15: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 16: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 17: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC2_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 18: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 19: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 20: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 21: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC4_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 22: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 23: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC5_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 24: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 25: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC6_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 26: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
+                        // 27: begin
+                        //     dac_cmd <= {1'b0, 1'b0, DAC7_DATA_REG_ADDR, 16'd32768};
+                        //     dac_cmd_valid <= 1'b1;
+                        // end
+                        // 28: begin
+                        //     dac_cmd_valid <= 1'b0;
+                        // end
                         16'd32: begin
                             init_done_flag <= 1'b1;  // initialization is done
                         end
