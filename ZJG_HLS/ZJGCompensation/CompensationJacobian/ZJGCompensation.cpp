@@ -1,4 +1,5 @@
 #include "ZJGCompensation.h"
+#include "unstable.h"
 #include "math.h"
 #include <iostream>
 
@@ -6,7 +7,7 @@ void ZJGCompensation(float ReferPose[6], float RealPose[6], float InverseTargets
 {
 
     float df[6][6];
-    Jacobian(RealPose[0], RealPose[1], RealPose[2], RealPose[3], RealPose[4], RealPose[5], df);
+    Jacobian(RealPose[0], RealPose[1], RealPose[2]+central_Z, RealPose[3], RealPose[4], RealPose[5], df);
 
     float error_pose[6];
     for (int i = 0; i < 6; i++)

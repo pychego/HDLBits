@@ -206,62 +206,6 @@ module DAC81408_cmd_gen (
                             dac_cmd_valid <= 1'b0;
                         end
                         // 以上为初始化设置完成zzzzzzzzzzzzzzzzzzz
-                        // 13: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 14: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 15: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 16: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 17: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC2_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 18: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 19: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 20: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 21: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC4_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 22: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 23: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC5_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 24: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 25: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC6_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 26: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
-                        // 27: begin
-                        //     dac_cmd <= {1'b0, 1'b0, DAC7_DATA_REG_ADDR, 16'd32768};
-                        //     dac_cmd_valid <= 1'b1;
-                        // end
-                        // 28: begin
-                        //     dac_cmd_valid <= 1'b0;
-                        // end
                         16'd32: begin
                             init_done_flag <= 1'b1;  // initialization is done
                         end
