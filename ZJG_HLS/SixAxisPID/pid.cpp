@@ -11,7 +11,7 @@ void pid(bool zero_output, int kp, int ki, int kd,
     float ki_float = ki / 100000.0;
     float kd_float = kd / 100000.0;
 
-    /**/
+    // PID参数与位移相乘， 位移单位mm
     float data_target_mm[6] = {target0 / 1000.0f, target1 / 1000.0f, target2 / 1000.0f,
                                target3 / 1000.0f, target4 / 1000.0f, target5 / 1000.0f};
     float data_real_mm[6] = {(ssi0 + compensateLength) / 1000.0f, (ssi1 + compensateLength) / 1000.0f,

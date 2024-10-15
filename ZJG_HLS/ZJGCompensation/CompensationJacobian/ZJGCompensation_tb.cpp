@@ -11,11 +11,13 @@ using namespace std;
 // 该雅可比矩阵对上平台的target进行补偿
 int main()
 {
+    // RealPose和ReferPose都是相对于动平台参考系而言的
     float RealPose[6] = {0, 0, -14.1164, 0, 0, 0};
     float ReferPose[6] = {0, 0, 5, 0, 0, 0};
-    // 反解得到的目标值
-    float InverseTargets[6] = {169.6182, 169.6182, 169.6182, 169.6182, 169.6182, 169.6182};
 
+    // 反解得到的目标值
+    float InverseTargets[6] = {165.0767, 165.0767, 165.0767, 165.0767, 165.0767, 165.0767};
+    // 定义补偿后的总目标腿长度
     float AllTargets[6] = {0};
 
     ZJGCompensation(ReferPose, RealPose, InverseTargets, AllTargets);
