@@ -19,41 +19,31 @@ int main()
     bit16 control_output4;
     bit16 control_output5;
 
-    PID_ILC(zero_output, kp, ki, kd, data_target[0], data_target[1], data_target[2], data_target[3], data_target[4], data_target[5],
-        ssi[0], ssi[1], ssi[2], ssi[3], ssi[4], ssi[5],
-        &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
-    std::cout << "first control_output: " << " \n";
-    // 输出control_output
-    std::cout << "control_output0: " << control_output0 << " \n";
-    std::cout << "control_output1: " << control_output1 << " \n";
-    std::cout << "control_output2: " << control_output2 << " \n";
-    std::cout << "control_output3: " << control_output3 << " \n";
-    std::cout << "control_output4: " << control_output4 << " \n";
-    std::cout << "control_output5: " << control_output5 << " \n";
+    int num_samples = 30000;   // 数据点数, 3个周期
+    int sampling_rate = 1000;  // 采样率 (Hz) 不变
+    float error[num_samples]; // 用于存储正弦波的 error 数组
+    float time[num_samples];  // 用于存储时间向量
 
-    //	ssi = 150000;
-    PID_ILC(zero_output, kp, ki, kd, data_target[0], data_target[1], data_target[2], data_target[3], data_target[4], data_target[5],
-        ssi[0], ssi[1], ssi[2], ssi[3], ssi[4], ssi[5],
-        &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
-    std::cout << "second control_output: " << " \n";
-    std::cout << "control_output0: " << control_output0 << " \n";
-    std::cout << "control_output1: " << control_output1 << " \n";
-    std::cout << "control_output2: " << control_output2 << " \n";
-    std::cout << "control_output3: " << control_output3 << " \n";
-    std::cout << "control_output4: " << control_output4 << " \n";
-    std::cout << "control_output5: " << control_output5 << " \n";
+    float u[6]; // 测试接口, 综合时不要这个参数
 
-    // 找到问题了。。。。。。，调试
-    PID_ILC(zero_output, kp, ki, kd, data_target[0], data_target[1], data_target[2], data_target[3], data_target[4], data_target[5],
-        ssi[0], ssi[1], ssi[2], ssi[3], ssi[4], ssi[5],
-        &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
-    std::cout << "third control_output: " << " \n";
-    std::cout << "control_output0: " << control_output0 << " \n";
-    std::cout << "control_output1: " << control_output1 << " \n";
-    std::cout << "control_output2: " << control_output2 << " \n";
-    std::cout << "control_output3: " << control_output3 << " \n";
-    std::cout << "control_output4: " << control_output4 << " \n";
-    std::cout << "control_output5: " << control_output5 << " \n";
+    // 生成时间向量和 error
+    for (int i = 0; i < num_samples; i++)
+    {
+        time[i] = (float)i / sampling_rate;   // 时间向量计算
+        error[i] = sin(0.2 * M_PI * time[i]); // 计算正弦波
+        // printf("第 %d 次输入,error= %.4f\n", i + 1, error[i]);
+    }
+
+    for (int i = 0; i < num_samples; i++)
+    {
+        PID_ILC(zero_output, kp, ki, kd,
+                7000000, 20000000, 10, 100, // ILC参数
+                floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000),
+                0, 0, 0, 0, 0, 0,
+                u, &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
+        // std::cout << "control_output0: " << control_output0 << std::endl;
+        printf("第 %d 次输出,u= %.2f\n", i + 1, u[0]);
+    }
 
     return 0;
 }
