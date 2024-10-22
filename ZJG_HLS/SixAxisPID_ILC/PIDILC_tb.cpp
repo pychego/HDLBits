@@ -7,9 +7,9 @@ int main()
 {
     bool zero_output = 0;
     // 当pid三个参数相同,如果target-ssi每次也一样,那控制输出就是相同的
-    int kp = 1500;
-    int ki = 1200;
-    int kd = 1000;
+    int kp = 0;
+    int ki = 0;
+    int kd = 0;
     int data_target[6] = {200000, 200000, 200000, 200000, 200000, 200000};
     int ssi[6] = {180000, 180000, 180000, 180000, 180000, 180000};
     bit16 control_output0;
@@ -39,10 +39,10 @@ int main()
         PID_ILC(zero_output, kp, ki, kd,
                 7000000, 20000000, 10, 100, // ILC参数
                 floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000),
-                0, 0, 0, 0, 0, 0,
-                u, &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
-        // std::cout << "control_output0: " << control_output0 << std::endl;
-        printf("第 %d 次输出,u= %.2f\n", i + 1, u[0]);
+                0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength,
+                &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
+        std::cout << "control_output0: " << control_output0-32768 << std::endl;
+        // printf("第 %d 次输出,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
     }
 
     return 0;
