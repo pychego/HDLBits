@@ -1,8 +1,9 @@
 #include "PID_ILC.h"
 #include "unstable.h"
 #include <iostream>
-
 #include "PID_ILC.cpp"
+
+
 int main()
 {
     bool zero_output = 0;
@@ -40,9 +41,12 @@ int main()
                 7000000, 20000000, 10, 100, // ILC参数
                 floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000),
                 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength,
+                u,
                 &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
-        std::cout << "control_output0: " << control_output0-32768 << std::endl;
-        // printf("第 %d 次输出,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
+        
+        // 此处输出是纯ILC输出,不包含PID输出
+        // std::cout << "control_output0: " << control_output0-32768 << std::endl;
+        printf("第 %d 次输出,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
     }
 
     return 0;

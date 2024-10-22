@@ -6,7 +6,7 @@ void PID_ILC(bool zero_output, int kp, int ki, int kd,         // PID参数
              int ILCK_p, int ILCK_d, int Ts, int maxILCoutput, // ILC参数
              int target0, int target1, int target2, int target3, int target4, int target5,
              int ssi0, int ssi1, int ssi2, int ssi3, int ssi4, int ssi5,
-            //  float u[6],	// 测试接口, 综合时不要这个参数
+             float u[6], // 测试接口, 综合时不要这个参数
              bit16 *control_output0, bit16 *control_output1, bit16 *control_output2,
              bit16 *control_output3, bit16 *control_output4, bit16 *control_output5)
 {
@@ -48,14 +48,14 @@ void PID_ILC(bool zero_output, int kp, int ki, int kd,         // PID参数
     float ILCK_d_float = ILCK_d / 100000.0;
 
     float Duration = Ts;
-    float SampleTime = 0.001;             // 与控制周期1ms匹配
+    float SampleTime = 0.001;              // 与控制周期1ms匹配
     int N = round(Duration / SampleTime); // 一个周期内的采样点数
 
     // 设置存放数组, static修饰不能使用变长数组,这里先设置一个较大的值,最长周期10s
     static float ILC_control[6][10000] = {0};
     static float Error_history[6][10000] = {0};
     static float Error_diff[6][10000] = {0};
-    static float u[6] = {0};
+    // static float u[6] = {0};
     static int counter = 0; // 由于matlab从1开始，这里从0开始
 
     if (counter > N - 1)
@@ -88,44 +88,109 @@ void PID_ILC(bool zero_output, int kp, int ki, int kd,         // PID参数
         }
     }
 
-    // 计算误差差分
-    for (int i = 0; i < 6; i++)
+
+    // 以下两个判断语句求diff, 将diff的计算打散,平均分配到每个运行周期中以减小Latency
+    if (counter > 1)
     {
-        Error_diff[i][0] = Error_history[i][1] - Error_history[i][0];
-        for (int j = 1; j < N; j++)
+        for (int i = 0; i < 6; i++)
         {
-            Error_diff[i][j] = Error_history[i][j] - Error_history[i][j - 1];
+            Error_diff[i][counter - 1] = Error_history[i][counter - 1] - Error_history[i][counter - 2];
+        }
+        if (counter == 2)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                Error_diff[i][0] = Error_diff[i][1];
+            }
+        }
+    }
+    if (counter == N - 1)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            Error_diff[i][counter] = Error_history[i][counter] - Error_history[i][counter - 1];
+        }
+    }
+
+
+    // 以下是将ILC_control的计算分散到每个控制周期
+    if(counter==2){
+        for (int i = 0; i < 6; i++)
+        {
+            ILC_control[i][counter-2] = ILC_control[i][counter-2] + ILCK_p_float * Error_history[i][counter-2] + ILCK_d_float * Error_diff[i][counter-2];
+            // 限制ILC控制输出
+            if (ILC_control[i][counter-2] > maxILCoutput)
+            {
+                ILC_control[i][counter-2] = maxILCoutput;
+            }
+            else if (ILC_control[i][counter-2] < -maxILCoutput)
+            {
+                ILC_control[i][counter-2] = -maxILCoutput;
+            }
+        }
+    }
+    if(counter >= 2){
+        for (int i = 0; i < 6; i++)
+        {
+            ILC_control[i][counter-1] = ILC_control[i][counter-1] + ILCK_p_float * Error_history[i][counter-1] + ILCK_d_float * Error_diff[i][counter-1];
+            // 限制ILC控制输出
+            if (ILC_control[i][counter-1] > maxILCoutput)
+            {
+                ILC_control[i][counter-1] = maxILCoutput;
+            }
+            else if (ILC_control[i][counter-1] < -maxILCoutput)
+            {
+                ILC_control[i][counter-1] = -maxILCoutput;
+            }
+        }
+    }
+    if(counter == N-1){
+        for (int i = 0; i < 6; i++)
+        {
+            ILC_control[i][counter] = ILC_control[i][counter] + ILCK_p_float * Error_history[i][counter] + ILCK_d_float * Error_diff[i][counter];
+            // 限制ILC控制输出
+            if (ILC_control[i][counter] > maxILCoutput)
+            {
+                ILC_control[i][counter] = maxILCoutput;
+            }
+            else if (ILC_control[i][counter] < -maxILCoutput)
+            {
+                ILC_control[i][counter] = -maxILCoutput;
+            }
         }
     }
 
     // 增加计数器
     counter++;
+    if(counter > N-1){
+        counter = 0;
+    }
 
     // 如果一轮迭代完成，更新ILC控制信号
-    if (counter > N - 1)
-    {
-        for (int i = 0; i < 6; ++i)
-        {
-            for (int j = 0; j < N; ++j)
-            {
-                ILC_control[i][j] += ILCK_p_float * Error_history[i][j] + ILCK_d_float * Error_diff[i][j];
-                // 限制ILC控制输出
-                if (ILC_control[i][j] > maxILCoutput)
-                {
-                    ILC_control[i][j] = maxILCoutput;
-                }
-                else if (ILC_control[i][j] < -maxILCoutput)
-                {
-                    ILC_control[i][j] = -maxILCoutput;
-                }
-            }
-        }
-        // // 输出ILC_control[1]
-        // for (int j = 0; j < N; ++j){
-        //     printf("Error_history[1][%d]: %.4f\n", j, Error_history[1][j]);
-        // }
-        counter = 0; // 计数器重置为0
-    }
+    // if (counter > N - 1)
+    // {
+    //     for (int i = 0; i < 6; ++i)
+    //     {
+    //         for (int j = 0; j < N; ++j)
+    //         {
+    //             ILC_control[i][j] += ILCK_p_float * Error_history[i][j] + ILCK_d_float * Error_diff[i][j];
+    //             // 限制ILC控制输出
+    //             if (ILC_control[i][j] > maxILCoutput)
+    //             {
+    //                 ILC_control[i][j] = maxILCoutput;
+    //             }
+    //             else if (ILC_control[i][j] < -maxILCoutput)
+    //             {
+    //                 ILC_control[i][j] = -maxILCoutput;
+    //             }
+    //         }
+    //     }
+    //     // // 输出ILC_control[1]
+    //     // for (int j = 0; j < N; ++j){
+    //     //     printf("Error_history[1][%d]: %.4f\n", j, Error_history[1][j]);
+    //     // }
+    //     counter = 0; // 计数器重置为0
+    // }
 
     // 以下为PID控制部分=======================================================================================================
     // 使用static修饰很重要
