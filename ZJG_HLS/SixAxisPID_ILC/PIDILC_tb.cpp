@@ -20,7 +20,7 @@ int main()
     bit16 control_output4;
     bit16 control_output5;
 
-    int num_samples = 30000;   // 数据点数, 3个周期
+    int num_samples = 4000;   // 数据点数, 3个周期
     int sampling_rate = 1000;  // 采样率 (Hz) 不变
     float error[num_samples]; // 用于存储正弦波的 error 数组
     float time[num_samples];  // 用于存储时间向量
@@ -31,22 +31,23 @@ int main()
     for (int i = 0; i < num_samples; i++)
     {
         time[i] = (float)i / sampling_rate;   // 时间向量计算
-        error[i] = sin(0.2 * M_PI * time[i]); // 计算正弦波
+        error[i] = sin(M_PI * time[i]); // 计算正弦波
         // printf("第 %d 次输入,error= %.4f\n", i + 1, error[i]);
     }
 
     for (int i = 0; i < num_samples; i++)
     {
         PID_ILC(zero_output, kp, ki, kd,
-                7000000, 20000000, 10, 100, // ILC参数
+                7000000, 20000000, 2, 100, // ILC参数
                 floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000),
                 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength,
-                u,
+                // u,
                 &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
         
         // 此处输出是纯ILC输出,不包含PID输出
         // std::cout << "control_output0: " << control_output0-32768 << std::endl;
-        printf("第 %d 次输出,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
+        // printf("第 %d 次输出,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
+        printf("第 %d 次输出, control_output0: %d \n", i + 1, control_output0-32768);
     }
 
     return 0;

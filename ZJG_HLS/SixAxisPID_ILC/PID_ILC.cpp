@@ -6,7 +6,7 @@ void PID_ILC(bool zero_output, int kp, int ki, int kd,         // PID参数
              int ILCK_p, int ILCK_d, int Ts, int maxILCoutput, // ILC参数
              int target0, int target1, int target2, int target3, int target4, int target5,
              int ssi0, int ssi1, int ssi2, int ssi3, int ssi4, int ssi5,
-             float u[6], // 测试接口, 综合时不要这个参数
+            //  float u[6], // 测试接口, 综合时不要这个参数
              bit16 *control_output0, bit16 *control_output1, bit16 *control_output2,
              bit16 *control_output3, bit16 *control_output4, bit16 *control_output5)
 {
@@ -55,7 +55,7 @@ void PID_ILC(bool zero_output, int kp, int ki, int kd,         // PID参数
     static float ILC_control[6][10000] = {0};
     static float Error_history[6][10000] = {0};
     static float Error_diff[6][10000] = {0};
-    // static float u[6] = {0};
+    static float u[6] = {0};
     static int counter = 0; // 由于matlab从1开始，这里从0开始
 
     if (counter > N - 1)
