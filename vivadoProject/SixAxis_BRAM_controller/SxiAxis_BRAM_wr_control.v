@@ -1,7 +1,6 @@
 // bram_count is the number of data in one of the ping-pang buffer, 
 // consisting of two data buffers in total
 // 已经修改bram_count即为实际可存放的点数，同时BRAM_en使能和rd_BRAM在同一时候
-
 module SxiAxis_BRAM_wr_control (
     input        clk,
     input        rst_n,
@@ -78,5 +77,7 @@ endmodule
 
 // 最后使用乒乓操作感觉必要性不大,
 // 存放实际位移的BRAM, 每个控制周期存放一个实际位移
-/* 这个模块实际输出的地址数目是 bram_count*2, 当这么多地址全输出之后, 下一个地址就是0
+/* 这个模块实际输出的地址数目就是是bram_count, 当这么多地址全输出之后, 下一个地址就是0
+例如,
+    bram_count = 10,则输出地址为0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, ...
 */
