@@ -7,12 +7,10 @@
 int main()
 {
     bool zero_output = 0;
-    // å½“pidä¸‰ä¸ªå‚æ•°ç›¸åŒ,å¦‚æœtarget-ssiæ¯æ¬¡ä¹Ÿä¸€æ ·,é‚£æ§åˆ¶è¾“å‡ºå°±æ˜¯ç›¸åŒçš„
+    // µ±pidÈı¸ö²ÎÊıÏàÍ¬,Èç¹ûtarget-ssiÃ¿´ÎÒ²Ò»Ñù,ÄÇ¿ØÖÆÊä³ö¾ÍÊÇÏàÍ¬µÄ
     int kp = 0;
     int ki = 0;
     int kd = 0;
-    int data_target[6] = {200000, 200000, 200000, 200000, 200000, 200000};
-    int ssi[6] = {180000, 180000, 180000, 180000, 180000, 180000};
     bit16 control_output0;
     bit16 control_output1;
     bit16 control_output2;
@@ -20,34 +18,34 @@ int main()
     bit16 control_output4;
     bit16 control_output5;
 
-    int num_samples = 4000;   // æ•°æ®ç‚¹æ•°, 3ä¸ªå‘¨æœŸ
-    int sampling_rate = 1000;  // é‡‡æ ·ç‡ (Hz) ä¸å˜
-    float error[num_samples]; // ç”¨äºå­˜å‚¨æ­£å¼¦æ³¢çš„ error æ•°ç»„
-    float time[num_samples];  // ç”¨äºå­˜å‚¨æ—¶é—´å‘é‡
+    int num_samples = 4000;   // Êı¾İµãÊı, 3¸öÖÜÆÚ
+    int sampling_rate = 1000;  // ²ÉÑùÂÊ (Hz) ²»±ä
+    float error[num_samples]; // ÓÃÓÚ´æ´¢ÕıÏÒ²¨µÄ error Êı×é
+    float time[num_samples];  // ÓÃÓÚ´æ´¢Ê±¼äÏòÁ¿
 
-    float u[6]; // æµ‹è¯•æ¥å£, ç»¼åˆæ—¶ä¸è¦è¿™ä¸ªå‚æ•°
+    float u[6]; // ²âÊÔ½Ó¿Ú, ×ÛºÏÊ±²»ÒªÕâ¸ö²ÎÊı
 
-    // ç”Ÿæˆæ—¶é—´å‘é‡å’Œ error
+    // Éú³ÉÊ±¼äÏòÁ¿ºÍ error
     for (int i = 0; i < num_samples; i++)
     {
-        time[i] = (float)i / sampling_rate;   // æ—¶é—´å‘é‡è®¡ç®—
-        error[i] = sin(M_PI * time[i]); // è®¡ç®—æ­£å¼¦æ³¢
-        // printf("ç¬¬ %d æ¬¡è¾“å…¥,error= %.4f\n", i + 1, error[i]);
+        time[i] = (float)i / sampling_rate;   // Ê±¼äÏòÁ¿¼ÆËã
+        error[i] = sin(M_PI * time[i]); // ¼ÆËãÕıÏÒ²¨
+        // printf("µÚ %d ´ÎÊäÈë,error= %.4f\n", i + 1, error[i]);
     }
 
     for (int i = 0; i < num_samples; i++)
     {
         PID_ILC(zero_output, kp, ki, kd,
-                7000000, 20000000, 2, 100, // ILCå‚æ•°
+                7000000, 20000000, 2, 100, // ILC²ÎÊı
                 floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000), floor(error[i]*1000),
                 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength, 0-compensateLength,
                 u,
                 &control_output0, &control_output1, &control_output2, &control_output3, &control_output4, &control_output5);
         
-        // æ­¤å¤„è¾“å‡ºæ˜¯çº¯ILCè¾“å‡º,ä¸åŒ…å«PIDè¾“å‡º
+        // ´Ë´¦Êä³öÊÇ´¿ILCÊä³ö,²»°üº¬PIDÊä³ö
         // std::cout << "control_output0: " << control_output0-32768 << std::endl;
-        printf("ç¬¬ %d æ¬¡è¾“å‡º,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
-        // printf("ç¬¬ %d æ¬¡è¾“å‡º, control_output0: %d \n", i + 1, control_output0-32768);
+        printf("µÚ %d ´ÎÊä³ö,u= %.2f    control_output0: %d \n", i + 1, u[0], control_output0-32768);
+        // printf("µÚ %d ´ÎÊä³ö, control_output0: %d \n", i + 1, control_output0-32768);
     }
 
     return 0;
