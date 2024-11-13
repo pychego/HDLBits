@@ -4,6 +4,7 @@ module top_module(
 );
 
 
+    // 有可能产生latch吗
     integer i;
     always@(*) begin
         out = 0;  // 仿真顺序执行, 但是综合并行执行, 综合工具会正确处理
