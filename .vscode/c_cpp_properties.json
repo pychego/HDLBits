@@ -3,17 +3,15 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
-                "C:\\Applications\\Vivado\\2018.3\\include\\**",
-                "C:\\Applications\\mingw64\\include\\eigen3\\**"
+                "${workspaceFolder}/**"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "intelliSenseMode": "windows-gcc-x86",
-            "compilerPath": "C:\\Applications\\mingw64\\bin\\g++.exe"
+            "intelliSenseMode": "macos-clang-arm64",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang"
         }
     ],
     "version": 4
