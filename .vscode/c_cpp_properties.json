@@ -10,8 +10,8 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "intelliSenseMode": "macos-clang-arm64",
-            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang"
+            "intelliSenseMode": "windows-gcc-x86",
+            "compilerPath": "C:\\Applications\\mingw64\\bin\\gcc.exe"
         }
     ],
     "version": 4
