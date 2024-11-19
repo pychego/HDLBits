@@ -37,8 +37,9 @@ module top_module (
 
     assign done = (state == STOP);
 
-    // 下午再检查一下这个方法吧, 将状态都明确列出来
-    /*  // 使用的状态只有3个,太少了, 这就要用下降沿检测, 不知道哪里出了问题,一直不匹配
+
+  /*  // 下午再检查一下这个方法吧, 将状态都明确列出来
+      // 使用的状态只有3个,太少了, 这就要用下降沿检测, 不知道哪里出了问题,一直不匹配
 // 一般用的状态越少, 就越难写
     parameter S0 = 0, S1 = 1, S2 = 2;
     reg [1:0] state, next;
@@ -66,11 +67,7 @@ module top_module (
             S0: begin
                 next = (in_negedge) ? S1 : S0;
             end
-            S1: begin
-                if (count <= 7) next = S1;
-                else if (count == 8 && in == 1) next = S2;
-                else next = S0;
-            end
+            S1: next = (count == 8) ? (in ? S2 : S0) : S1;
             S2: begin
                 next = (in_negedge) ? S1 : S0;
             end
@@ -83,6 +80,6 @@ module top_module (
     end
 
     assign done = (state == S2);
-*/
 
+*/
 endmodule
