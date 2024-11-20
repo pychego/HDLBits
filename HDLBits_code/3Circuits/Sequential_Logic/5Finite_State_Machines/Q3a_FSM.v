@@ -1,9 +1,9 @@
 module top_module (
-    input  clk,
-    input  reset,
-    input  s,
-    input  w,
-    output z
+    input      clk,
+    input      reset,
+    input      s,
+    input      w,
+    output reg z
 );
 
     parameter A = 0, B = 1;
@@ -26,20 +26,23 @@ module top_module (
 
     always @(posedge clk) begin
         if (reset) begin
-            count  <= 0;
+            count <= 0;
             w_data <= 0;
+            z <= 0;
         end else begin
             case (state)
                 A: begin
-                    count  <= 0;
+                    count <= 0;
                     w_data <= 0;
+                    z <= 0;
                 end
                 B: begin
                     if (count < 2) count <= count + 1;
                     else count <= 0;
                     w_data[count] <= w;
                     // 这里w_data[0] + w_data[1] + w_data[2] == 2不对,因此此时上升沿采用的w_data[2]还未被赋值
-                    // z <= (count == 2) & (w_data[0] + w_data[1] + w_data[2] == 2);
+                    // 这里应该用w_data[0] + w_data[1] + w == 2
+                    z <= (count == 2) & (w_data[0] + w_data[1] + w == 2);
                 end
                 default: ;
             endcase
@@ -47,7 +50,7 @@ module top_module (
     end
 
     // z 使用组合逻辑和时序逻辑的判断条件是完全不一样的,
-    assign z = (count == 0) & (w_data[0] + w_data[1] + w_data[2] == 2);
+    // assign z = (count == 0) & (w_data[0] + w_data[1] + w_data[2] == 2);
 
 
 endmodule
