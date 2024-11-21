@@ -8,15 +8,18 @@ module top_module (
     input            ack
 );
 
-    // 一次成功, 明天写一下注释
+    // 一次成功, 明天写一下注释, 基本框架就是在上一个程序上面修改
     parameter S0 = 0, S1 = 1, S2 = 2, S3 = 3, SHIFT = 5, COUNTING = 6, DONE = 7;
     reg [2:0] state, next;
 
     // FSM和计数器结合, 指定在某个state的周期数, 这个值得学习
+
+    // 这个是SHIFT状态的计数器
     reg [15:0] countSHIFT;
 
     reg [ 3:0] delay;  // 与作者相同的变量
 
+    // 记录1000个clk
     reg [15:0] counter;
     always @(posedge clk) begin
         if (reset) counter <= 0;
@@ -81,6 +84,7 @@ module top_module (
         else delay <= delay;
     end
 
+    // 大的计数器里面套小的计数器, 主要就是把握好转换条件即可
     always @(posedge clk) begin
         if (reset) count <= 0;
         else if (state == SHIFT && next == COUNTING) count <= {delay[2:0], data};
