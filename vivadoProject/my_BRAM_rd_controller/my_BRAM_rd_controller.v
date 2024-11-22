@@ -1,5 +1,4 @@
-// rd_module is not refered in ping-pang, bram_rd_count is the total number of data in the BRAM
-// Loop reading data from BRAM
+// 该文件是单轴的BRAM_rd控制
 // 读取参考波形, 高的这个module不涉及到ping-pang, bram_rd_count是BRAM中数据的总数
 module my_BRAM_rd_controller (
     input        clk,

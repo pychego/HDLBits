@@ -1,5 +1,4 @@
-// bram_count is the number of data in one of the ping-pang buffer, 
-// consisting of two data buffers in total
+//该文件是单轴的写入控制
 // 已经修改bram_count即为实际可存放的点数，同时BRAM_en使能和rd_BRAM在同一时候
 
 module my_BRAM_wr_controller (

@@ -10,6 +10,9 @@
     以上输出完成之后再进行循环, 不过一般情况下不会到addition结束,就会设置start=0, 从而停止输出
 */
 
+/* 该代码只是为了方便进行ILC控制, 对单轴和六轴控制没有要求, 两者通用
+*/
+
 module SxiAxis_BRAM_rd_control_roll (
     input        clk,
     input        rst_n,

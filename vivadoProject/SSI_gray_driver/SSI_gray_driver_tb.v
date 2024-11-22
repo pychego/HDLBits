@@ -6,7 +6,7 @@ module SSI_gray_driver_tb ();
     reg         rst_n;
     reg         SSI_data;
     wire        SSI_clk;
-    wire [31:0] loc_data;
+    wire [31:0] loc_data_gray;
 
     initial begin
         clk   = 1'b0;
@@ -27,11 +27,11 @@ module SSI_gray_driver_tb ();
     end
 
     SSI_gray_driver u_SSI_gray_driver (
-        .clk     (clk),
-        .rst_n   (rst_n),
-        .SSI_data(SSI_data),
-        .SSI_clk (SSI_clk),     // output to sensor
-        .loc_data(loc_data)     // output
+        .clk          (clk),
+        .rst_n        (rst_n),
+        .SSI_data     (SSI_data),
+        .SSI_clk      (SSI_clk),       // output to sensor
+        .loc_data_gray(loc_data_gray)  // output
     );
 
 endmodule
