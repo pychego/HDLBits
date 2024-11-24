@@ -1,22 +1,28 @@
 // convert parallel dac_cmd to spi serial data
-/* 2025.11.24 这个
+/*  2025.11.24 
+    将reg [23:0] dac_cmd 根据dac_cmd_vaild转化为符合SPI协议的串行数据
+接口:
+    DAC_CSn SPI数据片选信号, 低电平有效, 该信号要严格控制持续时间,确保正好传输dac_cmd[23:0]
+    DAC_SCLK SPI协议传输过程的时钟信号
+    DAC_SDI SPI协议传输的串行数据
 */
 
 
 
 module DAC81416_spi (
-                            input             clk,
-                            input             rst_n,
-                            input      [23:0] dac_cmd,
-                            input             dac_cmd_valid,
-    (*mark_DEBUG = "TRUE"*) output reg        DAC_CSn,
-    (*mark_DEBUG = "TRUE"*) output reg        DAC_SCLK,     // 25MHz
-    (*mark_DEBUG = "TRUE"*) output reg        DAC_SDI
+    input             clk,
+    input             rst_n,
+    input      [23:0] dac_cmd,
+    input             dac_cmd_valid,
+
+    output reg        DAC_CSn,
+    output reg        DAC_SCLK,     // 25MHz
+    output reg        DAC_SDI
 );
 
     // cnt_div is two divided-frequency 二分频 50Mhz
     reg [3:0] cnt_div;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk, negedge rst_n) begin
         if (!rst_n) cnt_div <= 4'd0;
         else if (cnt_div == 4'd1) cnt_div <= 4'd0;
         else cnt_div <= cnt_div + 1'b1;
@@ -30,6 +36,7 @@ module DAC81416_spi (
     end
 
     // dac_cmd_valid 是和控制信号一起出现的,因此dac_cmd_valid每次持续时间达到0.1ms
+    // cnt 统计dac_cmd_valid之后出现的clk周期数
     reg [13:0] cnt;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) cnt <= 14'd0;
@@ -37,11 +44,14 @@ module DAC81416_spi (
         else cnt <= 14'd0;
     end
 
-    (*mark_DEBUG = "TRUE"*) wire [13:0] cnt_SCLK;
+    wire [13:0] cnt_SCLK;
     // assign cnt_SCLK = cnt >> 1;
     // 因为DAC_SCLK是clk的四分频,所以cnt_SCLK统计的是dac_cmd_valid有效之后DAC_SCLK的周期数
     assign cnt_SCLK = cnt >> 2;
 
+    /*  后面判断条件cnt[1:0] == 2'b11生成DAC_CSn和DAC_SDI
+        都是为了避开SCLK的上升沿和下降沿
+    */
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) DAC_CSn <= 1'b1;
         // cnt[1:0] is low positions
@@ -51,7 +61,7 @@ module DAC81416_spi (
                 if (cnt_SCLK <= 5)  
                     //the DAC_CSn high time has to 240ns+, meeting with tCSHIGH
                     DAC_CSn <= 1'b1;
-                else if (cnt_SCLK <= 29) DAC_CSn <= 1'b0;   //  ???
+                else if (cnt_SCLK <= 29) DAC_CSn <= 1'b0; // 7~30完整24个状态都是0
                 // CSn low keeps 960ns,SCLK cycle is 40ns, so 24 cycles
                 // 1000ns=1us=0.001ms
                 else DAC_CSn <= 1'b1;
@@ -59,7 +69,7 @@ module DAC81416_spi (
         end
     end
 
-    (*mark_DEBUG = "TRUE"*) reg [23:0] dac_cmd_shift;
+    reg [23:0] dac_cmd_shift;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) dac_cmd_shift <= 24'd0;
         else if (cnt[1:0] == 2'b11) begin

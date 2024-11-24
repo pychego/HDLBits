@@ -1,9 +1,17 @@
-// Initialize the DAC and output the correct control instructions
-// How to ensure control_output and timing coordination
-// 该模块首先进行初始化DAC操作,之后就开始接收control_output,并包装成dac_cmd,传递给DAC81416_spi,进行spi时序的调整
-// start 是整个系统的开始信号, start_init_dac 是初始化DAC的信号 都是电平信号, 先start_init_dac, 后start
-// 高的论文中有,当接收到来自PS端的start_init_dac信号时，进入初始化阶段，并用 init_done_flag 
-// 信号指示初始化的完成与否，初始化完成并接收到来自PS端的start信号时才会进入正常工作阶段。 
+/*  2024.11.24 
+    按照DAC81408_driver_new更新了这个代码, 在初始化过程中填入了0V
+接口:
+    start_init_dac 开始初始化信号, 该信号要超前于start
+    start 控制系统开始信号  start 和 start_init_dac 都来自GPIO
+
+    dac_cmd 传送给spi的数据
+    dac_cmd_valid 声明此时的dac_cmd是有效的
+    LDACn DAC芯片同步输出多通道电压信号, 低电平时输出电压同步更新
+原理: 
+    start 是整个系统的开始信号, start_init_dac 是初始化DAC的信号 都是电平信号, 先start_init_dac, 后start
+    高的论文中有,当接收到来自PS端的start_init_dac信号时，进入初始化阶段，并用 init_done_flag信号
+    指示初始化的完成与否，初始化完成并接收到来自PS端的start信号时才会进入正常工作阶段。
+*/
 module DAC81416_cmd_gen (
     input        clk,
     input        rst_n,
@@ -14,14 +22,15 @@ module DAC81416_cmd_gen (
     input [15:0] control_output2,
     input [15:0] control_output3,
 
-    output reg [23:0] dac_cmd,        // the two signals are passed to DAC81416_spi
-    output reg        dac_cmd_valid,  // 声明此时的dac_cmd是有效的
+    output reg [23:0] dac_cmd,
+    output reg        dac_cmd_valid,
     output reg        LDACn
 );
 
 
     // localparam is used to define constants, which can not be passed as parameters to other modules
     // the address comes from the datasheet technical manual of DAC81416
+    // 地址和偏移已经经过多次验证,没有问题
     localparam SPICONFIG_REG_ADDR = 6'b000011;  // offset   3h
     localparam GENCONFIG_REG_ADDR = 6'b000100;  // 4h
     localparam SYNCCONFIG_REG_ADDR = 6'b000110;  // 06h
@@ -51,7 +60,7 @@ module DAC81416_cmd_gen (
     assign clk_10kHz_en = (cnt == 14'd1);
 
     // frequency is 10kHz, so cycle is 0.1ms
-    // count_10kHz from 0 to 9, which is a control cycle, 1ms
+    // count_10kHz从0~9,是一个控制周期,所有要求时序的模块该信号均相同
     reg [3:0] count_10kHz;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz <= 4'd0;
@@ -77,16 +86,14 @@ module DAC81416_cmd_gen (
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) state_for_spi <= 4'd0;
         else if (clk_spi_en && count_10kHz == 8) begin
-            // state_for_spi应该是在count_10Khz中从0~19左右
+            // state_for_spi应该是在count_10Khz==8中从0~19左右
             state_for_spi <= state_for_spi + 1'b1;
         end else if (count_10kHz != 8) state_for_spi <= 4'd0;
     end
 
-    // test this signal,
     // there is only one clk cycle make clk_10kHz_en high in 0.1ms,
-    // count_10kHz_init_dac is used to indicate the time order of DAC initialization
-    // count_10kHz_init_dac
-    (*mark_DEBUG = "TRUE"*) reg [15:0] count_10kHz_init_dac;
+    // count_10kHz_init_dac用于指示DAC81416初始化的时序
+    reg [15:0] count_10kHz_init_dac;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) count_10kHz_init_dac <= 16'd0;
         else if (clk_10kHz_en && start_init_dac) begin
@@ -96,16 +103,16 @@ module DAC81416_cmd_gen (
         end
     end
 
-    // this code can make sure initialization only once
-    // 初始化一次之后,init_done_flag置 1
-    // 回头看DAC81416的手册, 好像是dac_cmd_valid不能连续, 发送一次就要停止一次
-    (*mark_DEBUG = "TRUE"*) reg init_done_flag = 1'b0;
+
+    // 确保初始化仅一次, 初始化一次之后,init_done_flag置 1
+    // 回头看DAC81416的手册, 是dac_cmd_valid不能连续, 发送一次就要停止一次
+    reg init_done_flag = 1'b0;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             init_done_flag <= 1'b0;
             dac_cmd <= 24'h0;
             dac_cmd_valid <= 1'b0;
-        end else begin        // 高的代码中 这一行本来有 else if (clk_10kHz_en), 我把 if (clk_10kHz_en)删除了
+        end else begin         // 高的代码中 这一行本来有 else if (clk_10kHz_en), 我把 if (clk_10kHz_en)删除了
             if (!start) begin  // if no start signal and no init, then begin to initialization
                 if (!init_done_flag) begin  // if initialization is not done, do initialization
                     case (count_10kHz_init_dac)
