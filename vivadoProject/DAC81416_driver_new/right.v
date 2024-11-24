@@ -30,7 +30,7 @@ module DAC81416_cmd_gen (
     localparam DACRANGE1_REG_ADDR = 6'b001011;  // Bh
     localparam DACRANGE2_REG_ADDR = 6'b001100;  // Ch
     localparam DACRANGE3_REG_ADDR = 6'b001101;  // Dh
-
+    
     localparam DAC0_DATA_REG_ADDR = 6'b010000;  // 10h
     localparam DAC1_DATA_REG_ADDR = 6'b010001;  // 11h
     localparam DAC2_DATA_REG_ADDR = 6'b010010;  // 12h
@@ -39,7 +39,6 @@ module DAC81416_cmd_gen (
 
 
     // this is a counter from 0 to 9999, which is used to generate a 10kHz clock
-    // cnt的一个周期是0.1个控制周期
     reg [13:0] cnt;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) cnt <= 14'd0;  // if rst_n is low, reset the counter
@@ -105,7 +104,7 @@ module DAC81416_cmd_gen (
             init_done_flag <= 1'b0;
             dac_cmd <= 24'h0;
             dac_cmd_valid <= 1'b0;
-        end else begin        // 高的代码中 这一行本来有 else if (clk_10kHz_en), 我把 if (clk_10kHz_en)删除了
+        end else  begin        // 高的代码中 这一行本来有 else if (clk_10kHz_en), 我把 if (clk_10kHz_en)删除了
             if (!start) begin  // if no start signal and no init, then begin to initialization
                 if (!init_done_flag) begin  // if initialization is not done, do initialization
                     case (count_10kHz_init_dac)
@@ -125,6 +124,7 @@ module DAC81416_cmd_gen (
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd5: begin
+                            // dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
                             dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFF0};
                             dac_cmd_valid <= 1'b1;
                         end
@@ -132,6 +132,8 @@ module DAC81416_cmd_gen (
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd7: begin
+                            // dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFFE};
+                            // dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
                             dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
                             dac_cmd_valid <= 1'b1;
                         end
@@ -174,10 +176,19 @@ module DAC81416_cmd_gen (
             end else begin
                 // send start signal only after initialization is completed
                 // if receive start from PS, then enter the normal working phase
+                // count_10kHz from 0 to 9, which is a control cycle and the total time is 1ms
+                // count_10kHz stays every state for 0.1ms
                 // count_10kHz 从0到9,每个状态持续0.1ms,总时间为1ms
                 case (count_10kHz)
-                    // 目前设置在count_10kHz=8时,开始发送dac_cmd, 此状态下state_for_spi大概0~19
-                    // 每个状态持续500个clk, 最后在state_for_spi=18时设置LDACn=0进行同步更新
+                    // 前面的状态在空等, 这个时候其他模块比如反解可以进行运算
+                    // 因为我要用8个DAC通道,这里要改一下状态机,把8个DAC的数据依次送进去
+                    // 8: begin
+                    //     dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, control_output};
+                    //     dac_cmd_valid <= 1'b1;
+                    // end
+                    // 9: begin
+                    //     dac_cmd_valid <= 1'b0;
+                    // end
                     8: begin
                         case (state_for_spi)
                             1: begin

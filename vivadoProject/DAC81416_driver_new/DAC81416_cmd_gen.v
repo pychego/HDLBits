@@ -110,63 +110,92 @@ module DAC81416_cmd_gen (
                 if (!init_done_flag) begin  // if initialization is not done, do initialization
                     case (count_10kHz_init_dac)
                         // 16'd0: 因为默认就是在state=0,所以这个状态不能用
+                        // 初始化之前首先在输出电压地址寄存器写入0V
                         16'd1: begin
-                            dac_cmd <= {1'b0, 1'b0, SPICONFIG_REG_ADDR, 16'h0A84};
+                            dac_cmd <= {1'b0, 1'b0, DAC0_DATA_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd2: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd3: begin
-                            dac_cmd <= {1'b0, 1'b0, GENCONFIG_REG_ADDR, 16'h3F00};
+                            dac_cmd <= {1'b0, 1'b0, DAC1_DATA_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd4: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd5: begin
-                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFF0};
+                            dac_cmd <= {1'b0, 1'b0, DAC3_DATA_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd6: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd7: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'd32768};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd8: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd9: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE1_REG_ADDR, 16'hAAAA};
+                            dac_cmd <= {1'b0, 1'b0, SPICONFIG_REG_ADDR, 16'h0A84};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd10: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd11: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE2_REG_ADDR, 16'hAAAA};
+                            dac_cmd <= {1'b0, 1'b0, GENCONFIG_REG_ADDR, 16'h3F00};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd12: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd13: begin
-                            dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
+                            dac_cmd <= {1'b0, 1'b0, DACPWDWN_REG_ADDR, 16'hFFF0};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd14: begin
                             dac_cmd_valid <= 1'b0;
                         end
                         16'd15: begin
-                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'hFFFF};
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE0_REG_ADDR, 16'hAAAA};
                             dac_cmd_valid <= 1'b1;
                         end
                         16'd16: begin
                             dac_cmd_valid <= 1'b0;
                         end
+                        16'd17: begin
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE1_REG_ADDR, 16'hAAAA};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        16'd18: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        16'd19: begin
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE2_REG_ADDR, 16'hAAAA};
+                            dac_cmd_valid <= 1'b1;
+                        end
                         16'd20: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        16'd21: begin
+                            dac_cmd <= {1'b0, 1'b0, DACRANGE3_REG_ADDR, 16'hAAAA};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        16'd22: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        16'd23: begin
+                            dac_cmd <= {1'b0, 1'b0, SYNCCONFIG_REG_ADDR, 16'hFFFF};
+                            dac_cmd_valid <= 1'b1;
+                        end
+                        16'd24: begin
+                            dac_cmd_valid <= 1'b0;
+                        end
+                        16'd32: begin
                             init_done_flag <= 1'b1;  // initialization is done
                         end
                     endcase
@@ -221,6 +250,8 @@ module DAC81416_cmd_gen (
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) LDACn <= 1'b1;
+        else if (count_10kHz_init_dac == 16'd32)  // initialization is done
+            LDACn <= 1'b0;
         else
             case (state_for_spi)
                 18: begin
