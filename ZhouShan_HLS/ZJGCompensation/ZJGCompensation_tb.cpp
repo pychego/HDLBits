@@ -11,12 +11,14 @@ using namespace std;
 // 该雅可比矩阵对上平台的target进行补偿
 int main()
 {
+    // ReferPose 当前下发的参考位姿
+    // RealPose 当前周期的实际位姿
     // RealPose和ReferPose都是相对于动平台参考系而言的
-    float RealPose[6] = {0, 0, -14.1164, 0, 0, 0};
-    float ReferPose[6] = {0, 0, 5, 0, 0, 0};
+    float RealPose[6] = {0, 0, -3.52, 0, 0.2, 0};
+    float ReferPose[6] = {0, 0, 5, 0, 3, 1};
 
     // 反解得到的目标值
-    float InverseTargets[6] = {165.0767, 165.0767, 165.0767, 165.0767, 165.0767, 165.0767};
+    float InverseTargets[6] = {134.1161,134.8635,134.9980,138.7659,138.0837,135.5982};
     // 定义补偿后的总目标腿长度
     float AllTargets[6] = {0};
 

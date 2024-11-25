@@ -3,11 +3,12 @@
 #include "math.h"
 #include <iostream>
 
+// 这里pose都是cm和deg
 void DirectSolution(float lengths[6], float pose[6])
 {
     // 通过神经网络获取迭代初始位姿
     MLP(lengths, pose);
-    // 输出pose
+    // // 输出pose
     // for (int i = 0; i < 6; i++)
     // {
     //     std::cout << pose[i] << std::endl;
