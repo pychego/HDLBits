@@ -1,10 +1,11 @@
 /*
 根据matlab Jacobian得到的C++代码
 */
-#include "DirectSolution.h"
+#include "ZJGCompensation.h"
 #include "math.h"
 using namespace std;
 
+// 2024.8.26 使用角度雅可比矩阵(后三列数值小) 输入也是角度制
 void Jacobian(float x, float y, float z, float a, float b, float c, float J[6][6])
 {
 
@@ -143,7 +144,7 @@ void Jacobian(float x, float y, float z, float a, float b, float c, float J[6][6
     x50_180 = x50 * RAD2DEG;
     x49_180 = x49 * RAD2DEG;
 
-    J[0][0] = x72 / x52;
+    J[0][0] = -x72 / x52;
     J[0][1] = x71 / x52;
     J[0][2] = -x70 / x52;
     J[0][3] = (x71 * (x101 - x102 + x100 + x99) - x70 * (x105 - x106 + x104 + x103)) / x52_180;
