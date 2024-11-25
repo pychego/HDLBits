@@ -3,8 +3,8 @@
 #include <iomanip>
 using namespace std;
 #include "math.h"
-#include "ZJGCompensation.h"
-#include "ZJGCompensation.cpp"
+#include "ZhouShanCompensation.h"
+#include "ZHouShanCompensation.cpp"
 #include "Jacobian.cpp"
 #include "cordic.cpp"
 
@@ -22,7 +22,7 @@ int main()
     // 定义补偿后的总目标腿长度
     float AllTargets[6] = {0};
 
-    ZJGCompensation(ReferPose, RealPose, InverseTargets, AllTargets);
+    ZhouShanCompensation(ReferPose, RealPose, InverseTargets, AllTargets);
 
     // 输出AllTargets
     cout << "AllTargets:" << endl;

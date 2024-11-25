@@ -1,7 +1,7 @@
 /*
 根据matlab Jacobian得到的C++代码
 */
-#include "ZJGCompensation.h"
+#include "ZhouShanCompensation.h"
 #include "math.h"
 using namespace std;
 

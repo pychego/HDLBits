@@ -1,9 +1,9 @@
-#include "ZJGCompensation.h"
+#include "ZhouShanCompensation.h"
 #include "unstable.h"
 #include "math.h"
 #include <iostream>
 
-void ZJGCompensation(float ReferPose[6], float RealPose[6], float InverseTargets[6], float AllTargets[6])
+void ZhouShanCompensation(float ReferPose[6], float RealPose[6], float InverseTargets[6], float AllTargets[6])
 {
 
     float df[6][6];

@@ -26,6 +26,6 @@ void Jacobian(float x, float y, float z, float a, float b, float c, float J[6][6
         InverseTargets 反解得到的目标腿长
    输出: AllTargets     补偿腿长 + 反解得到的目标腿长
 */
-void  ZJGCompensation(float ReferPose[6], float RealPose[6], float InverseTargets[6], float AllTargets[6]);
+void  ZhouShanCompensation(float ReferPose[6], float RealPose[6], float InverseTargets[6], float AllTargets[6]);
 
 # endif
