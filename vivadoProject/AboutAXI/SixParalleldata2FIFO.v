@@ -1,5 +1,9 @@
 /* 该模块用于将六路并联信号(实时SSI)转化为M_AXIStream, 与 AXI Stream DATA FIFO连接 
    通过DMA一次性将六个实时SSI信号传输到DDR中,只需要用到DMA write功能
+   2025.11.26
+   这个代码有bug, 使用这个传输0~5路ssi时, 1,2,3路的ssi会串第5路的ssi数据, 但是不知道哪里出错了
+   使用12通道的代码, 只使用前六个通道传输数据, 这时没有问题
+   ... 不知道哪里出错了, ,,
 */
 
 module SixParalleldata2FIFO (
