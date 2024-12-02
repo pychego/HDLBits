@@ -19,14 +19,14 @@ module uart_byte (
 count uart_tx bps_count tx_done send_en
 组合逻辑信号-----------------
 data bps_clk   */
-    // 根据band_set译码bps_DR: 发送一个bit需要的时钟数目
+    // 根据band_set译码bps_DR: 发送一个bit需要的时钟数目  时钟周期20ns
     always @(*) begin
         case (band_set)
             0: bps_DR = 100_0000_000 / 9600 / 20;  // bps=9600
             1: bps_DR = 100_0000_000 / 19200 / 20;  // bps=19200
             2: bps_DR = 100_0000_000 / 38400 / 20;  // bps=38400
             3: bps_DR = 100_0000_000 / 57600 / 20;  //  bps=57600
-            default: bps_DR = 100_0000_000 / 115200 / 20; // bps=115200
+            default: bps_DR = 100_0000_000 / 115200 / 20;  // 此时bps_DR=434
         endcase
     end
 
@@ -101,7 +101,7 @@ data bps_clk   */
     // tx_done传输完成信号单独处理
     always @(posedge clock or negedge reset_n) begin
         if (!reset_n) tx_done <= 1'b0;
-        else if (bps_clk == 1 && bps_count == 10) tx_done <= 1'b1;
+        else if (bps_clk == 1 && bps_count == 10) tx_done <= 1'b1;  // 此时stop位已经发送完了
         else tx_done <= 1'b0;
     end
 

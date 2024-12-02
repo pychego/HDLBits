@@ -25,7 +25,7 @@ module uart_byte_rx (
         uart_rx_r <= {uart_rx_r[1:0], uart_rx}; 
     end
 
-    // 定义uart_rx的上升沿和下降沿
+    // 定义uart_rx的上升沿和下降沿, 结合从知乎上保存下来的图, 就算有亚稳态, 也可以检测出边沿
     wire pedge_uart_rx, nedge_uart_rx;
     assign pedge_uart_rx = (uart_rx_r[2:1] == 2'b01);
     assign nedge_uart_rx = (uart_rx_r[2:1] == 2'b10);  // 检测到了uart_rx的下降沿 脉冲信号
@@ -42,7 +42,7 @@ module uart_byte_rx (
 
     reg [31:0] bps_DR;  // 每一位采样16次，舍弃前5次和后4次
     always @(*) begin
-        case (band_set)  // 擦色语句必须卸载always块中，不加begin end
+        case (band_set)  // case语句必须写在always块中，不加begin end
             0: bps_DR = 1000_000_000 / 9600 / 16 / 20 - 1;  // 波特率9600
             1: bps_DR = 1000_000_000 / 19200 / 16 / 20 - 1;
             2: bps_DR = 1000_000_000 / 38400 / 16 / 20 - 1;
