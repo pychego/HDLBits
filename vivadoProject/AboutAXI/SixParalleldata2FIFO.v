@@ -1,4 +1,4 @@
-/* 该模块用于将六路并联信号(实时SSI)转化为M_AXIStream, 与 AXI Stream DATA FIFO连接 
+/* 该模块用于将六路并联信号(实时SSI)转化为M_AXI_Stream, 与 AXI Stream DATA FIFO连接 
    通过DMA一次性将六个实时SSI信号传输到DDR中,只需要用到DMA write功能
    2025.11.26
    这个代码有bug, 使用这个传输0~5路ssi时, 1,2,3路的ssi会串第5路的ssi数据, 但是不知道哪里出错了
