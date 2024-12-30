@@ -1,23 +1,21 @@
 `timescale 1ns / 1ns  //时间单位/精度
 `include "sync_fifo.v"
-`define DATA_WIDTH 8
-`define DATA_DEPTH 8
 
 //------------<模块及端口声明>----------------------------------------
 module sync_fifo_tb ();
 
     parameter DATA_WIDTH = 8;  // FIFO位宽
-    parameter DATA_DEPTH = 8;  // FIFO深度
+    parameter DATA_DEPTH = 1;  // FIFO深度
 
-    reg                             clk;
-    reg                             rst_n;
-    reg  [          DATA_WIDTH-1:0] data_in;
-    reg                             rd_en;
-    reg                             wr_en;
+    reg                           clk;
+    reg                           rst_n;
+    reg  [        DATA_WIDTH-1:0] data_in;
+    reg                           rd_en;
+    reg                           wr_en;
 
-    wire [          DATA_WIDTH-1:0] data_out;
-    wire                            empty;
-    wire                            full;
+    wire [        DATA_WIDTH-1:0] data_out;
+    wire                          empty;
+    wire                          full;
     wire [$clog2(DATA_DEPTH) : 0] fifo_cnt;
 
 
